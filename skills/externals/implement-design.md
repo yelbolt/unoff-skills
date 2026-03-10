@@ -116,11 +116,13 @@ This embedded documentation **is the primary reference** for understanding how t
 
 ### Component Mapping Rules
 
+> For a full Figma name → npm export → Storybook URL reference table, see **[component-mapping](../ui/component-mapping.md)**.
+
 1. **Read the component description** returned by `get_design_context` — it contains props, variants, accessibility guidelines, and Storybook links
 2. **Identify the Figma component name** from the output (e.g., `Button`, `FormItem`, `Dropdown`, `SimpleSlider`, `MultipleSlider`, `SingleSelect`, `TextInput`, `ColorInput`, `Knob`, `NumberInput`, `Menu`, `Chip`, `SectionTitle`, `Icon`, etc.)
-3. **Match it to the `@unoff/ui` export** — the naming is consistent between Figma and the library
+3. **Match it to the `@unoff/ui` export** — the naming is consistent between Figma and the library (see [component-mapping](../ui/component-mapping.md) for the complete list)
 4. **Use the props documented in the description** to configure the component correctly
-5. **Consult the Storybook link** from the description for interactive examples and edge cases
+5. **Consult the Storybook link** from the description for interactive examples and edge cases — local instance at `https://ui.unoff.dev`
 6. **Import directly** from `@unoff/ui`:
    ```typescript
    import { Button, FormItem, Dropdown, SimpleSlider, MultipleSlider } from '@unoff/ui'

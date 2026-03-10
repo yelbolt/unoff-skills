@@ -1272,3 +1272,8 @@ All components include:
 <Button label="Submit" />
 // Automatically accessible
 ```
+
+## Related Skills
+
+- **[component-mapping](./component-mapping.md)** — Complete table mapping every Figma library component to its `@unoff/ui` export and Storybook story URL
+- **[implement-design](../externals/implement-design.md)** — End-to-end workflow for translating a Figma spec document into production code
