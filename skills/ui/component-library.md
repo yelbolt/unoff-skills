@@ -1,6 +1,6 @@
 ---
 name: component-library
-description: Reference for @unoff/ui components (Bar, Button, Input, Dropdown, Menu, SemanticMessage, etc.) and @unoff/utils (FeatureStatus, doClassnames). Use when building UI, choosing the right component, or understanding the FeatureStatus permission and isBlocked pattern.
+description: Reference for @unoff/ui components (Bar, Button, Input, Dropdown, Menu, ActionsList, SegmentedControl, SemanticMessage, etc.) and @unoff/utils (FeatureStatus, doClassnames). Use when building UI, choosing the right component, or understanding the FeatureStatus permission and isBlocked pattern.
 ---
 
 # UI Component Library (@unoff/ui)
@@ -27,6 +27,7 @@ import { doClassnames, FeatureStatus } from '@unoff/utils'
 
 // Components
 import {
+  ActionsList,
   Bar,
   Button,
   Card,
@@ -46,6 +47,7 @@ import {
   Notification,
   Section,
   SectionTitle,
+  SegmentedControl,
   SemanticMessage,
   SimpleItem,
   SimpleSlider,
@@ -249,13 +251,36 @@ feature.isNew(): boolean
     }
   ]}
   selected={this.state.selected}
-  pin="TOP" | "BOTTOM"
+  alignment="LEFT" | "RIGHT" | "FILL"
+  pin="NONE" | "TOP" | "BOTTOM"
   helper={{
     label: "Choose an option",
-    pin: "TOP"
+    pin: "TOP",
+    type: "SINGLE_LINE" | "MULTI_LINE"
   }}
+  preview={{
+    image: imageUrl,
+    text: "Preview description",
+    pin: "TOP" | "BOTTOM"
+  }}
+  warning={{
+    label: "Warning message",
+    pin: "TOP" | "BOTTOM",
+    type: "SINGLE_LINE" | "MULTI_LINE"
+  }}
+  shouldReflow={{
+    isEnabled: true,
+    icon: "adjust"
+  }}
+  isDisabled={false}
   isBlocked={features.FEATURE.isBlocked()}
-  feature="FEATURE_NAME"
+  isNew={features.FEATURE.isNew()}
+  canBeSearched={true}
+  searchLabel="Search…"
+  noResultsLabel="No results"
+  onUnblock={() => {
+    sendPluginMessage({ pluginMessage: { type: 'GET_PRO' } }, '*')
+  }}
 />
 ```
 
@@ -264,14 +289,20 @@ feature.isNew(): boolean
 - `SEPARATOR`: Visual divider
 - `TITLE`: Section header
 
+**Search props** (new):
+- `canBeSearched`: Enable a search input above the list
+- `searchLabel`: Placeholder text for the search input
+- `noResultsLabel`: Message shown when no option matches
+
 ### Menu
 
 ```typescript
 <Menu
   id="actions-menu"
-  type="PRIMARY" | "SECONDARY"
+  type="ICON" | "PRIMARY"
   label="Actions"
   icon="settings"
+  customIcon={<MyIcon />}
   options={[
     {
       label: "Export",
@@ -292,18 +323,104 @@ feature.isNew(): boolean
       action: (e) => this.handleImport()
     }
   ]}
+  selected={this.state.selected}
   alignment="TOP_LEFT" | "TOP_RIGHT" | "BOTTOM_LEFT" | "BOTTOM_RIGHT"
   state="DEFAULT" | "LOADING" | "DISABLED"
+  helper={{
+    label: "Open actions menu",
+    pin: "TOP",
+    isSingleLine: true
+  }}
+  warning={{
+    label: "Warning message",
+    pin: "BOTTOM",
+    type: "MULTI_LINE" | "SINGLE_LINE"
+  }}
+  isBlocked={features.FEATURE.isBlocked()}
+  isNew={features.FEATURE.isNew()}
+  canBeSearched={true}
+  searchLabel="Search…"
+  noResultsLabel="No results"
 />
 ```
 
 **Props**:
-- `type`: Visual style
+- `type`: Visual style — `"ICON"` (icon-only button) | `"PRIMARY"` (labeled button)
 - `label`: Menu trigger text
 - `icon`: Icon name
-- `options`: Menu items (same as Dropdown)
+- `customIcon`: Custom React element as icon
+- `options`: Menu items (same structure as Dropdown)
+- `selected`: ID of the currently selected option
 - `alignment`: Menu position relative to trigger
 - `state`: Menu state
+- `helper`: Tooltip on the trigger button
+- `warning`: Warning tooltip on the trigger button
+- `isBlocked` / `isNew`: Feature control
+
+**Search props** (new):
+- `canBeSearched`: Enable a search input above the option list
+- `searchLabel`: Placeholder text for the search input
+- `noResultsLabel`: Message shown when no option matches
+
+### ActionsList
+
+Low-level component that renders the floating option list used internally by `Dropdown` and `Menu`. Use it directly only when you need a fully custom trigger or a standalone floating list.
+
+```typescript
+<ActionsList
+  options={[
+    {
+      label: "Option 1",
+      value: "option1",
+      type: "OPTION",
+      isActive: this.state.selected === "option1",
+      action: () => this.handleSelect("option1")
+    },
+    { type: "SEPARATOR" },
+    {
+      label: "Group",
+      value: "group",
+      type: "GROUP",
+      children: [
+        {
+          label: "Sub-option",
+          value: "sub",
+          type: "OPTION",
+          action: () => this.handleSelect("sub")
+        }
+      ]
+    }
+  ]}
+  selected={this.state.selected}
+  direction="LEFT" | "RIGHT"
+  shouldScroll={true}
+  containerId="plugin-container"
+  preview={{
+    image: imageUrl,
+    text: "Preview text",
+    pin: "TOP" | "BOTTOM"
+  }}
+  canBeSearched={true}
+  searchLabel="Search…"
+  noResultsLabel="No results"
+  onCancellation={() => this.closeMenu()}
+  menuRef={this.menuRef}
+  subMenuRef={this.subMenuRef}
+/>
+```
+
+**Props**:
+- `options`: Array of `DropdownOption` — same type as `Dropdown` / `Menu`
+- `selected`: ID of the currently highlighted/selected option
+- `direction`: Direction submenu expands — `"RIGHT"` (default) | `"LEFT"`
+- `shouldScroll`: Enable scrolling within the list
+- `containerId`: ID of the scroll/portal container
+- `preview`: Image tooltip shown on hover
+- `canBeSearched`: Enable search input above the list
+- `searchLabel`: Placeholder text for the search input
+- `noResultsLabel`: Message shown when no option matches
+- `onCancellation`: Called when the list is dismissed (Escape, click-outside)
+- `menuRef` / `subMenuRef`: Refs to the `<ul>` elements for imperative control
 
 ### Icon
 
@@ -843,6 +960,70 @@ Use when items must be reorderable via drag-and-drop. Items must each have a uni
 - `isBlocked` / `isNew`: Feature control
 - `onChange`: Non-standard signature `(feature: string, state: string, value: number) => void`
 
+### SegmentedControl
+
+Icon-based tab switcher. Each segment shows an icon (or a letter) with a tooltip helper. Use instead of `Tabs` when the options are purely icon-driven and compact layout is needed.
+
+```typescript
+<SegmentedControl
+  items={[
+    {
+      id: "GRID",
+      icon: { type: "PICTO", name: "grid" },
+      helper: { label: "Grid view", pin: "BOTTOM" },
+      isDisabled: false,
+    },
+    {
+      id: "LIST",
+      icon: { type: "PICTO", name: "list" },
+      helper: { label: "List view", pin: "BOTTOM" },
+    },
+  ]}
+  active={this.state.view}
+  preview={{
+    image: previewImageUrl,
+    text: "Preview description",
+    pin: "BOTTOM"
+  }}
+  warning={{
+    label: "This option is unavailable",
+    pin: "BOTTOM",
+    type: "MULTI_LINE" | "SINGLE_LINE"
+  }}
+  isBlocked={features.FEATURE.isBlocked()}
+  isNew={features.FEATURE.isNew()}
+  action={(e) => {
+    const id = (e.currentTarget as HTMLElement).dataset.feature
+    this.setState({ view: id })
+  }}
+  onUnblock={() => {
+    sendPluginMessage({ pluginMessage: { type: 'GET_PRO' } }, '*')
+  }}
+/>
+```
+
+**Props**:
+- `items`: Array of segment definitions
+  - `id`: Unique segment identifier (also used as `data-feature` on the DOM element)
+  - `icon.type`: `"PICTO"` | `"LETTER"`
+  - `icon.name`: Icon identifier from `IconList`
+  - `helper`: Tooltip — `label` required, `pin` optional
+  - `isDisabled`: Disable this segment
+- `active`: ID of the currently active segment
+- `preview`: Image + text tooltip shown on hover
+- `warning`: Warning tooltip shown over the control
+- `isBlocked` / `isNew`: Feature control
+- `action`: Click/keyboard handler — read the active ID from `e.currentTarget.dataset.feature`
+- `onUnblock`: Called when user clicks a blocked control
+
+**Reading the active segment in `action`**:
+```typescript
+action={(e) => {
+  const id = (e.currentTarget as HTMLElement).dataset.feature
+  this.setState({ view: id })
+}}
+```
+
 ## CSS Classes
 
 ### Layouts
@@ -1138,6 +1319,18 @@ Several components have unexpected names. Always check before importing:
 | `Slider` | `SimpleSlider` |
 | `ListItem` | `SimpleItem` |
 | `Modal` | `Dialog` |
+| `OptionsList` / `DropdownList` | `ActionsList` |
+
+### 1b. Menu `type` Values Are `"ICON"` and `"PRIMARY"`, Not `"PRIMARY"` and `"SECONDARY"`
+
+```typescript
+// ❌ WRONG
+<Menu type="SECONDARY" />
+
+// ✅ CORRECT
+<Menu type="ICON" />    // icon-only trigger (default)
+<Menu type="PRIMARY" /> // labeled button trigger
+```
 
 ### 2. Section — No `children`, Use `body` and `title` Props
 
