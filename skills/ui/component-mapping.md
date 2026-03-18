@@ -81,8 +81,9 @@ Storybook stories for `Icon`:
 | Accordion  | `Accordion`    | [Accordion](https://ui.unoff.dev/?path=/docs/components-actions-accordion--documentation)               | `expand-collapse-input`                                                    | [1018:540](https://www.figma.com/design/RDBmy7x5HfkZHpafVqHNWQ/Unoff-v0.1?node-id=1018-540) |
 | Button     | `Button`       | [Button](https://ui.unoff.dev/?path=/docs/components-actions-button--documentation)                     | `primary`, `secondary`, `tertiary`, `destructive`, `alternative`, `icon`   | [1018:526](https://www.figma.com/design/RDBmy7x5HfkZHpafVqHNWQ/Unoff-v0.1?node-id=1018-526) |
 | Card       | `Card`         | [Card](https://ui.unoff.dev/?path=/docs/components-actions-card--documentation)                         | `default`, `without-actions`, `without-title`, `filled`                    | [3240:172129](https://www.figma.com/design/RDBmy7x5HfkZHpafVqHNWQ/Unoff-v0.1?node-id=3240-172129) |
-| Knob       | `Knob` _(TbC)_ | —                                                                                                       | —                                                                          | [3261:32447](https://www.figma.com/design/RDBmy7x5HfkZHpafVqHNWQ/Unoff-v0.1?node-id=3261-32447) |
+| Knob       | `Knob` | —                                                                                                       | —                                                                          | [3261:32447](https://www.figma.com/design/RDBmy7x5HfkZHpafVqHNWQ/Unoff-v0.1?node-id=3261-32447) |
 | Menu       | `Menu`         | [Multiple Actions](https://ui.unoff.dev/?path=/docs/components-actions-multiple-actions--documentation) | `dropdown-icon`, `multiple-actions-icon-button`, `multiple-actions-button` | [3240:181089](https://www.figma.com/design/RDBmy7x5HfkZHpafVqHNWQ/Unoff-v0.1?node-id=3240-181089) |
+| Segmented Control       | `SegmentedControl`         | [Segmented Control](https://ui.unoff.dev/?path=/docs/components-actions-segmented-control--documentation) | `two-items`, `three-items`, `four-items`, `five-items` | [3617:59162](https://www.figma.com/design/RDBmy7x5HfkZHpafVqHNWQ/Unoff-v0.1?node-id=3617-59162) |
 
 ### Assets
 
@@ -175,7 +176,7 @@ import {
   Button,
   Card,
   Menu,
-  Tabs,
+  SegmentedControl,
 
   // Components — Assets
   Avatar,
@@ -204,6 +205,7 @@ import {
   KeyboardShortcutItem,
   MembersList,
   SortableList,
+  Tabs,
 
   // Components — Tags
   Chip,
@@ -223,9 +225,6 @@ import {
   List,
   Section,
   SimpleItem,
-
-  // Misc
-  Feature,
 } from "@unoff/ui";
 ```
 
