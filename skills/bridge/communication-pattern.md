@@ -658,7 +658,7 @@ const handleMessage = (event: MessageEvent) => {
 sendPluginMessage({
   pluginMessage: {
     type: 'CREATE_NODE',
-    requestId: crypto.randomUUID(),
+    requestId: uid(),
     data: { ... }
   }
 })
