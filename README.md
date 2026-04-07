@@ -13,7 +13,7 @@ This directory contains comprehensive documentation for the plugin architecture,
 ## Structure
 
 ```
-skills/
+unoff-create-plugin/
 ├── canvas/              # Figma API Layer
 │   ├── figma-api.md
 │   └── data-storage.md
@@ -47,14 +47,14 @@ skills/
 
 **Purpose**: Direct interactions with the Figma Plugin API
 
-### [figma-api.md](./skills/canvas/figma-api.md)
+### [figma-api.md](./unoff-create-plugin/canvas/figma-api.md)
 
 - Node creation and manipulation
 - Styles and variables management
 - Selection and viewport operations
 - Common patterns and best practices
 
-### [data-storage.md](./skills/canvas/data-storage.md)
+### [data-storage.md](./unoff-create-plugin/canvas/data-storage.md)
 
 - Plugin Data (node-level storage)
 - Shared Plugin Data (cross-plugin)
@@ -65,14 +65,14 @@ skills/
 
 **Purpose**: Message-passing architecture between UI and Canvas
 
-### [communication-pattern.md](./skills/bridge/communication-pattern.md)
+### [communication-pattern.md](./unoff-create-plugin/bridge/communication-pattern.md)
 
 - Architecture overview with diagrams
 - Message flow: UI ↔ Canvas via platformMessage/pluginMessage
 - Message type conventions
 - Request-response patterns
 
-### [bridge-functions.md](./skills/bridge/bridge-functions.md)
+### [bridge-functions.md](./unoff-create-plugin/bridge/bridge-functions.md)
 
 - Pure functions for Figma operations
 - loadUI.ts action map pattern
@@ -82,27 +82,27 @@ skills/
 
 **Purpose**: Central configuration, feature flags, build system, and code quality
 
-### [global-config.md](./skills/config/global-config.md)
+### [global-config.md](./unoff-create-plugin/config/global-config.md)
 
 - Complete Config type definition
 - All sections (limits, env, urls, plan, versions, features, lang, fees)
 - Environment variables and service toggles
 
-### [feature-flags.md](./skills/config/feature-flags.md)
+### [feature-flags.md](./unoff-create-plugin/config/feature-flags.md)
 
 - featuresScheme and Feature type
 - FeatureStatus runtime checks
 - doSpecificMode() override function
 - Adding new features step-by-step
 
-### [credits-system.md](./skills/config/credits-system.md)
+### [credits-system.md](./unoff-create-plugin/config/credits-system.md)
 
 - Credits atom (`$creditsCount`) and `checkCredits.ts` bridge
 - Renewal logic (period, version bump to reset all users)
 - Wiring features via `limitsMapping` + `feature.limit`
 - `isReached($creditsCount.get())` → `isBlocked` prop pattern
 
-### [vite-build.md](./skills/config/vite-build.md)
+### [vite-build.md](./unoff-create-plugin/config/vite-build.md)
 
 - Dual build system (IIFE Canvas + single-file UI)
 - Vite plugins (preact, singlefile, Sentry, custom CSS filter)
@@ -110,7 +110,7 @@ skills/
 - manifest.json configuration
 - ESLint and Prettier settings
 
-### [code-quality.md](./skills/config/code-quality.md)
+### [code-quality.md](./unoff-create-plugin/config/code-quality.md)
 
 - TypeScript strict mode, ESLint, Prettier
 - Recommended Vitest setup
@@ -121,14 +121,14 @@ skills/
 
 **Purpose**: Preact application, components, and external services
 
-### [component-library.md](./skills/ui/component-library.md)
+### [component-library.md](./unoff-create-plugin/ui/component-library.md)
 
 - @unoff/ui and @unoff/utils
 - FeatureStatus permission system
 - Button, Input, Dropdown, Menu, SemanticMessage components
 - CSS layouts and typography
 
-### [component-patterns.md](./skills/ui/component-patterns.md)
+### [component-patterns.md](./unoff-create-plugin/ui/component-patterns.md)
 
 - PureComponent class pattern
 - WithConfig and WithTranslation HOCs
@@ -137,7 +137,7 @@ skills/
 - platformMessage event handling
 - createPortal for modals/toasts
 
-### [external-services.md](./skills/ui/external-services.md)
+### [external-services.md](./unoff-create-plugin/ui/external-services.md)
 
 - Supabase authentication
 - Sentry error monitoring (with replay)
@@ -145,20 +145,20 @@ skills/
 - Notion CMS (announcements, onboarding)
 - Service singleton pattern
 
-### [state-management.md](./skills/ui/state-management.md)
+### [state-management.md](./unoff-create-plugin/ui/state-management.md)
 
 - Component state (PureComponent class)
 - Context API (ConfigContext, ThemeContext via HOC)
 - Nanostores atoms ($prefix, subscribe, dual update)
 - Figma Client Storage sync
 
-### [i18n.md](./skills/ui/i18n.md)
+### [i18n.md](./unoff-create-plugin/ui/i18n.md)
 
 - Tolgee for UI (TolgeeProvider, useTranslate, WithTranslation)
 - createI18n for Canvas (ICU format, pluralization)
 - Language detection and suggestion flow
 
-### [types-system.md](./skills/ui/types-system.md)
+### [types-system.md](./unoff-create-plugin/ui/types-system.md)
 
 - All type files (app, config, events, messages, translations, user)
 - BaseProps interface
@@ -166,7 +166,7 @@ skills/
 - RecursiveKeyOf for translation keys
 - Adding new contexts, modals, events, languages
 
-### [error-handling.md](./skills/ui/error-handling.md)
+### [error-handling.md](./unoff-create-plugin/ui/error-handling.md)
 
 - Action map + try/catch pattern (Canvas and UI)
 - Promise .catch() chains for external services
@@ -174,7 +174,7 @@ skills/
 - POST_MESSAGE user notifications
 - NotificationMessage type
 
-### [css-theming.md](./skills/ui/css-theming.md)
+### [css-theming.md](./unoff-create-plugin/ui/css-theming.md)
 
 - ThemeContext (data-theme + data-mode attributes)
 - unoff-ui CSS modules (layouts, texts)
@@ -184,7 +184,7 @@ skills/
 - Z-index architecture (ui/modal/toast)
 - Plugin window resizing
 
-### [accessibility.md](./skills/ui/accessibility.md)
+### [accessibility.md](./unoff-create-plugin/ui/accessibility.md)
 
 - `inert` attribute for modal focus trapping
 - Portal layering (#app, #modal, #toast)
@@ -194,7 +194,7 @@ skills/
 - Internationalization as accessibility
 - Notification and consent accessibility
 
-### [performance.md](./skills/ui/performance.md)
+### [performance.md](./unoff-create-plugin/ui/performance.md)
 
 - PureComponent render optimization
 - Feature component (DOM removal vs hiding)
@@ -205,7 +205,7 @@ skills/
 - Constructor-time computations
 - Sequential LOAD_DATA chain
 
-### [app-bootstrap.md](./skills/ui/app-bootstrap.md)
+### [app-bootstrap.md](./unoff-create-plugin/ui/app-bootstrap.md)
 
 - Canvas-side initialization (fonts, i18n, loadUI)
 - UI-side initialization (Mixpanel → Sentry → Supabase → Tolgee)
@@ -217,12 +217,12 @@ skills/
 
 **Purpose**: Integration workflows and external system configuration
 
-### [./skills/externals/implement-design](./skills/externals/implement-design)
+### [./unoff-create-plugin/externals/implement-design](./unoff-create-plugin/externals/implement-design)
 
 - Figma spec document → code workflow
 - Annotations, MCP server integration, unoff-ui component mapping
 
-### [./skills/externals/payment-systems.md](./skills/externals/payment-systems.md)
+### [./unoff-create-plugin/externals/payment-systems.md](./unoff-create-plugin/externals/payment-systems.md)
 
 - Figma built-in payments (`figma.payments` API, all interstitial types)
 - Lemon Squeezy license key system (activate / validate / deactivate)
@@ -233,27 +233,27 @@ skills/
 
 | Need to...                  | Go to                                                                                |
 | --------------------------- | ------------------------------------------------------------------------------------ |
-| Create Figma nodes          | [./skills/canvas/figma-api.md](./skills/canvas/figma-api.md)                         |
-| Store data in Figma         | [./skills/canvas/data-storage.md](./skills/canvas/data-storage.md)                   |
-| Communicate UI ↔ Canvas     | [./skills/bridge/communication-pattern.md](./skills/bridge/communication-pattern.md) |
-| Understand bridge functions | [./skills/bridge/bridge-functions.md](./skills/bridge/bridge-functions.md)           |
-| Configure the plugin        | [./skills/config/global-config.md](./skills/config/global-config.md)                 |
-| Add feature flags           | [./skills/config/feature-flags.md](./skills/config/feature-flags.md)                 |
-| Understand the build        | [./skills/config/vite-build.md](./skills/config/vite-build.md)                       |
-| Set up tests / quality      | [./skills/config/code-quality.md](./skills/config/code-quality.md)                   |
-| Use UI components           | [./skills/ui/component-library.md](./skills/ui/component-library.md)                 |
-| Write Preact components     | [./skills/ui/component-patterns.md](./skills/ui/component-patterns.md)               |
-| Integrate services          | [./skills/ui/external-services.md](./skills/ui/external-services.md)                 |
-| Manage state                | [./skills/ui/state-management.md](./skills/ui/state-management.md)                   |
-| Add translations            | [./skills/ui/i18n.md](./skills/ui/i18n.md)                                           |
-| Understand types            | [./skills/ui/types-system.md](./skills/ui/types-system.md)                           |
-| Handle errors               | [./skills/ui/error-handling.md](./skills/ui/error-handling.md)                       |
-| Style & theme               | [./skills/ui/css-theming.md](./skills/ui/css-theming.md)                             |
-| Accessibility               | [./skills/ui/accessibility.md](./skills/ui/accessibility.md)                         |
-| Optimize performance        | [./skills/ui/performance.md](./skills/ui/performance.md)                             |
-| Understand startup          | [./skills/ui/app-bootstrap.md](./skills/ui/app-bootstrap.md)                         |
-| Set up payments             | [./skills/externals/payment-systems.md](./skills/externals/payment-systems.md)       |
-| Set up credits quota        | [./skills/config/credits-system.md](./skills/config/credits-system.md)               |
+| Create Figma nodes          | [./unoff-create-plugin/canvas/figma-api.md](./unoff-create-plugin/canvas/figma-api.md)                         |
+| Store data in Figma         | [./unoff-create-plugin/canvas/data-storage.md](./unoff-create-plugin/canvas/data-storage.md)                   |
+| Communicate UI ↔ Canvas     | [./unoff-create-plugin/bridge/communication-pattern.md](./unoff-create-plugin/bridge/communication-pattern.md) |
+| Understand bridge functions | [./unoff-create-plugin/bridge/bridge-functions.md](./unoff-create-plugin/bridge/bridge-functions.md)           |
+| Configure the plugin        | [./unoff-create-plugin/config/global-config.md](./unoff-create-plugin/config/global-config.md)                 |
+| Add feature flags           | [./unoff-create-plugin/config/feature-flags.md](./unoff-create-plugin/config/feature-flags.md)                 |
+| Understand the build        | [./unoff-create-plugin/config/vite-build.md](./unoff-create-plugin/config/vite-build.md)                       |
+| Set up tests / quality      | [./unoff-create-plugin/config/code-quality.md](./unoff-create-plugin/config/code-quality.md)                   |
+| Use UI components           | [./unoff-create-plugin/ui/component-library.md](./unoff-create-plugin/ui/component-library.md)                 |
+| Write Preact components     | [./unoff-create-plugin/ui/component-patterns.md](./unoff-create-plugin/ui/component-patterns.md)               |
+| Integrate services          | [./unoff-create-plugin/ui/external-services.md](./unoff-create-plugin/ui/external-services.md)                 |
+| Manage state                | [./unoff-create-plugin/ui/state-management.md](./unoff-create-plugin/ui/state-management.md)                   |
+| Add translations            | [./unoff-create-plugin/ui/i18n.md](./unoff-create-plugin/ui/i18n.md)                                           |
+| Understand types            | [./unoff-create-plugin/ui/types-system.md](./unoff-create-plugin/ui/types-system.md)                           |
+| Handle errors               | [./unoff-create-plugin/ui/error-handling.md](./unoff-create-plugin/ui/error-handling.md)                       |
+| Style & theme               | [./unoff-create-plugin/ui/css-theming.md](./unoff-create-plugin/ui/css-theming.md)                             |
+| Accessibility               | [./unoff-create-plugin/ui/accessibility.md](./unoff-create-plugin/ui/accessibility.md)                         |
+| Optimize performance        | [./unoff-create-plugin/ui/performance.md](./unoff-create-plugin/ui/performance.md)                             |
+| Understand startup          | [./unoff-create-plugin/ui/app-bootstrap.md](./unoff-create-plugin/ui/app-bootstrap.md)                         |
+| Set up payments             | [./unoff-create-plugin/externals/payment-systems.md](./unoff-create-plugin/externals/payment-systems.md)       |
+| Set up credits quota        | [./unoff-create-plugin/config/credits-system.md](./unoff-create-plugin/config/credits-system.md)               |
 
 ## Documentation Standards
 
