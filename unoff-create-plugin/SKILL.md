@@ -1,5 +1,5 @@
 ---
-name: skills
+name: unoff-create-plugin
 description: "Master index for the unoff Figma plugin skill library. Use when building, debugging, or extending a Figma plugin with Preact UI, Canvas bridge, @unoff/ui components, Supabase, Tolgee, Sentry, Mixpanel, Vite build, TypeScript, credits, feature flags, payments, or design implementation. Covers all layers: Canvas, Bridge, UI, Config, and Externals."
 ---
 
