@@ -28,10 +28,11 @@ Inter-layer communication between the Preact UI and the Figma Canvas via `sendPl
 
 Direct Figma Plugin API usage and data persistence on the canvas side.
 
-| Skill                                              | When to load                                                                                                                               |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| [canvas/figma-api.md](./canvas/figma-api.md)       | Writing Canvas-layer code that interacts with the Figma document via `figma.*` calls: node creation, style management, selection, viewport |
-| [canvas/data-storage.md](./canvas/data-storage.md) | Persisting metadata on nodes (Plugin Data), syncing across plugins (Shared Plugin Data), or storing user preferences (Client Storage)      |
+| Skill                                                                    | When to load                                                                                                                               |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| [canvas/figma-api.md](./canvas/figma-api.md)                             | Writing Canvas-layer code that interacts with the Figma document via `figma.*` calls: node creation, style management, selection, viewport |
+| [canvas/data-storage.md](./canvas/data-storage.md)                       | Persisting metadata on nodes (Plugin Data), syncing across plugins (Shared Plugin Data), or storing user preferences (Client Storage)      |
+| [canvas/document-generation.md](./canvas/document-generation.md)         | Generating structured plugin output on the canvas using `Tag`, `Paragraph`, and `Signature` components from `src/canvas/`                  |
 
 ---
 

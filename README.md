@@ -54,6 +54,13 @@ unoff-create-plugin/
 - Selection and viewport operations
 - Common patterns and best practices
 
+### [document-generation.md](./unoff-create-plugin/canvas/document-generation.md)
+
+- Composing canvas documents with `Tag`, `Paragraph`, and `Signature`
+- Font loading requirements and layout patterns
+- Tag variants (indicator, avatar, hyperlink)
+- Full document frame composition recipe
+
 ### [data-storage.md](./unoff-create-plugin/canvas/data-storage.md)
 
 - Plugin Data (node-level storage)
@@ -234,6 +241,7 @@ unoff-create-plugin/
 | Need to...                  | Go to                                                                                |
 | --------------------------- | ------------------------------------------------------------------------------------ |
 | Create Figma nodes          | [./unoff-create-plugin/canvas/figma-api.md](./unoff-create-plugin/canvas/figma-api.md)                         |
+| Generate canvas documents   | [./unoff-create-plugin/canvas/document-generation.md](./unoff-create-plugin/canvas/document-generation.md)     |
 | Store data in Figma         | [./unoff-create-plugin/canvas/data-storage.md](./unoff-create-plugin/canvas/data-storage.md)                   |
 | Communicate UI ↔ Canvas     | [./unoff-create-plugin/bridge/communication-pattern.md](./unoff-create-plugin/bridge/communication-pattern.md) |
 | Understand bridge functions | [./unoff-create-plugin/bridge/bridge-functions.md](./unoff-create-plugin/bridge/bridge-functions.md)           |
