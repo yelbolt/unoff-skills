@@ -1,28 +1,46 @@
 ---
 name: implement-design
-description: Translates Figma spec documents into production-ready code with 1:1 visual fidelity. Use when implementing UI from Figma spec documents, when user mentions "implement design", "generate code", "implement component", "build Figma design", provides Figma URLs, or asks to build components matching Figma specs. Requires Figma MCP server connection.
+description: Translates design specs (Figma or Penpot) into production-ready code with 1:1 visual fidelity. Use when implementing UI from a design spec, when user mentions "implement design", "generate code", "implement component", provides Figma URLs or has a Penpot selection open, or asks to build components matching design specs. Requires Figma MCP or Penpot MCP server connection depending on platform.
 metadata:
-  mcp-server: figma, figma-desktop
+  mcp-server: figma, figma-desktop, penpot
 ---
 
 # Implement Design
 
 ## Overview
 
-This skill provides a structured workflow for translating Figma **spec documents** into production-ready code with pixel-perfect accuracy. A spec document is a Figma page that serves as the single source of truth for a feature's visual design, component usage, behavior, and content — all conveyed through the design itself and its **annotations**.
+This skill provides a structured workflow for translating design **spec documents** into production-ready code with pixel-perfect accuracy. It covers two platforms with fundamentally different MCP approaches:
 
-The workflow ensures consistent integration with the Figma MCP server, proper use of design tokens, correct interpretation of annotations, and 1:1 visual parity with designs.
+| | Figma | Penpot |
+|---|---|---|
+| MCP approach | Predefined tools (`get_design_context`, `get_metadata`, `get_screenshot`) | Arbitrary code execution in Plugin API environment |
+| Input | URL (`figma.com/design/:fileKey/...?node-id=`) | Selection in Penpot (no URL parsing needed) |
+| Connection | Remote or desktop app | WebSocket to running plugin (`http://localhost:4401/mcp`) |
+| Annotations | `data-*-annotations` attributes in output | Not available — rely on visual inspection |
+| Asset serving | `localhost` URLs from MCP server | Via plugin code execution |
+
+For both platforms, the output is then translated into `@unoff/ui` components using the same component mapping rules.
 
 ## Prerequisites
 
-- Figma MCP server must be connected and accessible
-- User must provide a Figma URL in the format: `https://figma.com/design/:fileKey/:fileName?node-id=1-2`
-  - `:fileKey` is the file key
-  - `1-2` is the node ID (the specific component or frame to implement)
-- **OR** when using `figma-desktop` MCP: User can select a node directly in the Figma desktop app (no URL required)
+### Figma
+- Figma MCP server connected and accessible
+- User provides a Figma URL: `https://figma.com/design/:fileKey/:fileName?node-id=1-2`
+- **OR** when using `figma-desktop`: node selected in Figma desktop app (no URL required)
+
+### Penpot
+- Penpot MCP server running: `npx -y @penpot/mcp@latest`
+- Plugin connected via WebSocket (plugin must be open in Penpot on port 4402)
+- MCP HTTP endpoint: `http://localhost:4401/mcp`
+- User has the target frame/component **selected** in Penpot
+- For Claude Code: `claude mcp add penpot -t http http://localhost:4401/mcp`
+
+> The Penpot MCP does not use predefined inspection tools. Instead, the LLM writes and executes arbitrary Penpot Plugin API code to query design properties. This means: no `get_design_context` call — instead, write code like `penpot.selection.map(s => ({ name: s.name, width: s.width, height: s.height, fills: s.fills }))` and execute it.
+
+### Both platforms
 - Project should have an established design system or component library (preferred)
 
-## Figma Spec Document
+## Figma Workflow
 
 ### What Is a Spec Document?
 
@@ -88,9 +106,75 @@ Describe **user interaction behavior** — what happens when the user interacts 
 4. **Do NOT render annotation text in the UI** — annotations are metadata for the developer, not content for the user
 5. **Follow cross-references** — when a content annotation contains a Figma link (`https://www.figma.com/design/...`), fetch that node's design context to get the referenced spec
 
-## External UI Library: `unoff-ui`
+## Penpot Workflow
 
-The Figma designs in this project use an **external component library** (`@unoff/ui`) that is **connected to a Figma library**. This connection is made through **embedded documentation in component descriptions**, not through Code Connect.
+### How it works
+
+The Penpot MCP does **not** expose predefined tools like `get_design_context`. Instead, the LLM writes Penpot Plugin API code, sends it to the MCP server, and gets the execution result back. This gives full access to the Plugin API but requires knowing the API.
+
+### Step 1: Confirm selection
+
+Ask the user to select the frame or component in Penpot before starting. The MCP server reads from `penpot.selection`.
+
+### Step 2: Inspect the design with code
+
+Execute Plugin API code to read design properties:
+
+```typescript
+// Get selected shapes with their properties
+penpot.selection.map(shape => ({
+  id: shape.id,
+  name: shape.name,
+  type: shape.type,
+  x: shape.x,
+  y: shape.y,
+  width: shape.width,
+  height: shape.height,
+  fills: shape.fills,
+  strokes: shape.strokes,
+  borderRadius: shape.borderRadius,
+}))
+```
+
+```typescript
+// Inspect a board's (frame's) flex layout
+const board = penpot.selection[0]  // Board type
+const flex = board.getFlexLayout?.()
+// { dir, horizontalSizing, verticalSizing, columnGap, rowGap, ... }
+```
+
+```typescript
+// Read text node properties
+const text = penpot.selection.find(s => s.type === 'text')
+// text.fontFamily, text.fontSize (string), text.fontWeight (string), text.fills
+```
+
+### Step 3: Screenshot for visual reference
+
+Use any available screenshot capability from the MCP or ask the user to provide a screenshot of the selected area. Since there is no built-in `get_screenshot` tool, rely on visual confirmation from the user if needed.
+
+### Step 4: Translate to `@unoff/ui`
+
+Apply the same component mapping rules as for Figma (see `@unoff/ui` section below). The Penpot `fills` format uses HEX strings + opacity — convert to the project's color system.
+
+Key Penpot → code translations:
+- `shape.fills = [{ fillColor: '#FF0000', fillOpacity: 1 }]` — solid fill
+- `shape.borderRadius` — corner radius (single value)
+- `board.addFlexLayout()` → auto-layout (flex direction, gap, padding)
+- `text.fontSize` is a **string** (e.g., `'14'`) — parse to number if needed
+- `text.fontWeight` is a **string** (e.g., `'500'`)
+
+### Step 5: Validate
+
+Compare the implemented UI against a screenshot or live preview. Since there are no annotations to cross-check (unlike Figma), rely on the visual comparison and shape property values.
+
+---
+
+## External UI Library: `@unoff/ui`
+
+The designs in this project use an **external component library** (`@unoff/ui`). On Figma, it is **connected to a Figma library** via embedded documentation in component descriptions. On Penpot, component mapping is done manually using the same naming conventions.
+
+> The rules below apply to both platforms. The difference is how you discover the component: Figma MCP provides embedded docs in `get_design_context` output; Penpot requires inspecting shape names and matching them to the library manually. This connection is made through **embedded documentation in component descriptions**, not through Code Connect.
 
 ### How the Figma-to-Code Link Works
 
@@ -144,7 +228,9 @@ If a design element does not correspond to any `unoff-ui` component:
 2. Compose it using `unoff-ui` primitives where possible (e.g., `Button` + `Icon`)
 3. Apply `unoff-ui` utility classes (`texts`, `layouts`) for consistent typography and spacing
 
-## Required Workflow
+## Required Workflow — Figma
+
+> This step-by-step workflow applies to the **Figma** platform and uses Figma MCP tools (`get_metadata`, `get_screenshot`, `get_design_context`). For Penpot, follow the [Penpot Workflow](#penpot-workflow) section above.
 
 **Follow these steps in order. Do not skip steps.**
 
@@ -452,3 +538,5 @@ By following this workflow, you ensure that every Figma spec document is impleme
 - [Figma MCP Server Documentation](https://developers.figma.com/docs/figma-mcp-server/)
 - [Figma MCP Server Tools and Prompts](https://developers.figma.com/docs/figma-mcp-server/tools-and-prompts/)
 - [Figma Variables and Design Tokens](https://help.figma.com/hc/en-us/articles/15339657135383-Guide-to-variables-in-Figma)
+- [Penpot MCP Server](https://github.com/penpot/penpot/tree/develop/mcp) — Setup, configuration, transport types
+- [Penpot Plugin API](https://help.penpot.app/technical-guide/plugins/) — Plugin API reference for code execution in Penpot MCP
