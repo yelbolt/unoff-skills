@@ -1,38 +1,43 @@
 ---
 name: unoff-create-plugin
-description: "Master index for the unoff Figma plugin skill library. Use when building, debugging, or extending a Figma plugin with Preact UI, Canvas bridge, @unoff/ui components, Supabase, Tolgee, Sentry, Mixpanel, Vite build, TypeScript, credits, feature flags, payments, or design implementation. Covers all layers: Canvas, Bridge, UI, Config, and Externals."
+description: "Master index for the unoff plugin skill library. Use when building, debugging, or extending a Figma or Penpot plugin with React UI, Canvas bridge, @unoff/ui components, Supabase, Tolgee, Sentry, Mixpanel, Vite build, TypeScript, credits, feature flags, payments, or design implementation. Covers all layers: Canvas, Bridge, UI, Config, and Externals. Platform-specific skills are in bridge/figma/, bridge/penpot/, canvas/figma/, canvas/penpot/. UI, Config, and Externals are shared across platforms."
 ---
 
 # Unoff Plugin Skills
 
 ## Overview
 
-This collection covers every layer of the **unoff Figma plugin** architecture. Each sub-skill is a self-contained reference document providing patterns, templates, and decisions rules for a specific concern.
+This collection covers every layer of the **unoff plugin** architecture for both **Figma** and **Penpot**. Each sub-skill is a self-contained reference document providing patterns, templates, and decision rules for a specific concern.
 
-**How to use these skills**: when a task falls within a domain below, load the corresponding file with `read_file` to get the full reference before writing or reviewing code.
+**How to use these skills**: when a task falls within a domain below, load the corresponding file with `read_file` before writing or reviewing code. For platform-specific layers (Bridge, Canvas), always load the file matching the target platform.
 
 ---
 
 ## Bridge
 
-Inter-layer communication between the Preact UI and the Figma Canvas via `sendPluginMessage` / `figma.ui.postMessage`.
+Inter-layer communication between the React UI and the Canvas. **Platform-specific** — load the correct subdirectory.
 
-| Skill                                                                | When to load                                                                                                                                              |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [bridge/bridge-functions.md](./bridge/bridge-functions.md)           | Creating or reviewing bridge functions in `src/bridges/`, implementing canvas operations called from `loadUI.ts`, or understanding the action map pattern |
-| [bridge/communication-pattern.md](./bridge/communication-pattern.md) | Wiring new actions, debugging UI↔Canvas communication, or understanding the `onmessage` routing pattern                                                   |
+| Skill                                                                                  | Platform | When to load                                                                                        |
+| -------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| [bridge/figma/bridge-functions.md](./bridge/figma/bridge-functions.md)                | Figma    | Creating bridge functions, implementing canvas operations called from `loadUI.ts` on Figma          |
+| [bridge/figma/communication-pattern.md](./bridge/figma/communication-pattern.md)      | Figma    | Wiring new actions, debugging UI↔Canvas communication, understanding the `onmessage` pattern        |
+| [bridge/penpot/bridge-functions.md](./bridge/penpot/bridge-functions.md)              | Penpot   | Creating bridge functions, implementing canvas operations called from `loadUI.ts` on Penpot         |
+| [bridge/penpot/communication-pattern.md](./bridge/penpot/communication-pattern.md)    | Penpot   | Wiring new actions, debugging UI↔Canvas communication, understanding the `onMessage` pattern        |
 
 ---
 
 ## Canvas
 
-Direct Figma Plugin API usage and data persistence on the canvas side.
+Canvas API usage and data persistence. **Platform-specific** — load the correct subdirectory.
 
-| Skill                                                                    | When to load                                                                                                                               |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| [canvas/figma-api.md](./canvas/figma-api.md)                             | Writing Canvas-layer code that interacts with the Figma document via `figma.*` calls: node creation, style management, selection, viewport |
-| [canvas/data-storage.md](./canvas/data-storage.md)                       | Persisting metadata on nodes (Plugin Data), syncing across plugins (Shared Plugin Data), or storing user preferences (Client Storage)      |
-| [canvas/document-generation.md](./canvas/document-generation.md)         | Generating structured plugin output on the canvas using `Tag`, `Paragraph`, and `Signature` components from `src/canvas/`                  |
+| Skill                                                                                      | Platform | When to load                                                                                          |
+| ------------------------------------------------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------- |
+| [canvas/figma/canvas-api.md](./canvas/figma/canvas-api.md)                                | Figma    | Writing Canvas-layer code via `figma.*`: node creation, styles, variables, selection, viewport        |
+| [canvas/figma/data-storage.md](./canvas/figma/data-storage.md)                            | Figma    | Persisting node metadata (Plugin Data), cross-plugin data (Shared Plugin Data), or user prefs        |
+| [canvas/figma/document-generation.md](./canvas/figma/document-generation.md)              | Figma    | Generating structured output using `Tag`, `Paragraph`, `Signature` from `src/canvas/` on Figma       |
+| [canvas/penpot/canvas-api.md](./canvas/penpot/canvas-api.md)                              | Penpot   | Writing Canvas-layer code via `penpot.*`: boards, shapes, flex layout, fills, selection, viewport     |
+| [canvas/penpot/data-storage.md](./canvas/penpot/data-storage.md)                          | Penpot   | Persisting all plugin state via `penpot.localStorage` (the only storage mechanism in Penpot)         |
+| [canvas/penpot/document-generation.md](./canvas/penpot/document-generation.md)            | Penpot   | Generating structured output using `Tag`, `Paragraph`, `Signature` from `src/canvas/` on Penpot      |
 
 ---
 
@@ -88,16 +93,33 @@ All concerns for the Preact UI layer: components, styling, state, services, and 
 src/
 ├── index.ts              # Canvas entry — action map, bridge dispatch
 ├── global.config.ts      # Central config (see config/global-config)
-├── bridges/              # Canvas operations (see bridge/)
-│   └── loadUI.ts         # Message router
+├── bridges/              # Canvas operations (see bridge/<platform>/)
+│   └── loadUI.ts         # Message router — Figma: figma.ui.onmessage / Penpot: penpot.ui.onMessage
 ├── app/
-│   ├── components/       # Preact UI components (see ui/)
+│   ├── index.tsx         # UI entry — providers, bootstrap (see ui/app-bootstrap)
+│   │                     # Penpot: includes platformMessage/pluginMessage proxy
+│   ├── components/       # React UI components (see ui/)
 │   ├── stores/           # Nanostore atoms (see ui/state-management)
 │   ├── services/         # External service singletons (see ui/external-services)
 │   └── types/            # TypeScript definitions (see ui/types-system)
-└── ui.tsx                # UI entry — providers, bootstrap (see ui/app-bootstrap)
+└── canvas/               # Canvas API helpers (see canvas/<platform>/)
 ```
 
 **Canvas side** → `src/index.ts` + `src/bridges/`  
-**UI side** → `src/ui.tsx` + `src/app/`  
+**UI side** → `src/app/index.tsx` + `src/app/`  
 **Shared** → `src/global.config.ts` + `src/app/types/`
+
+### Platform differences at a glance
+
+| Concern           | Figma                                    | Penpot                                          |
+| ----------------- | ---------------------------------------- | ----------------------------------------------- |
+| Open UI           | `figma.showUI(__html__, { ... })`        | `penpot.ui.open(title, url, { ... })`           |
+| Canvas → UI       | `figma.ui.postMessage({ type, data })`   | `penpot.ui.sendMessage({ type, data })`         |
+| UI → Canvas       | `parent.postMessage({ pluginMessage })` | dispatch `pluginMessage` CustomEvent (proxy)    |
+| Receive in Canvas | `figma.ui.onmessage = (msg) => ...`      | `penpot.ui.onMessage = (msg) => ...` + `msg.pluginMessage` |
+| Receive in UI     | `event.data.pluginMessage`               | `(event as CustomEvent).detail` on `platformMessage` |
+| Storage           | `figma.clientStorage` (async, typed)     | `penpot.localStorage` (sync, string-only)       |
+| Resize            | `figma.ui.resize(w, h)`                  | Not supported — fixed at open time              |
+| Open external URL | `figma.openExternal(url)`                | Re-send to UI, handle in browser via `OPEN_IN_BROWSER` |
+| Theme             | CSS vars via `themeColors: true`         | `penpot.theme` + `SET_THEME` message            |
+| Current user      | `figma.currentUser?.photoUrl`            | `penpot.currentUser.avatarUrl`                  |
