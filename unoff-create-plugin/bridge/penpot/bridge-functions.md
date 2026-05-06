@@ -200,7 +200,7 @@ import { createRectangle } from './shapes/createRectangle'
 import { getSelection } from './selection/getSelection'
 import { savePreferences, loadPreferences } from './data'
 
-penpot.ui.onMessage = async (msg: any) => {
+penpot.ui.onMessage(async (msg: any) => {
   const path = msg.pluginMessage
 
   const actions: { [key: string]: () => void } = {
@@ -226,7 +226,7 @@ penpot.ui.onMessage = async (msg: any) => {
   } catch {
     return actions['DEFAULT']?.()
   }
-}
+})
 ```
 
 ## Best Practices

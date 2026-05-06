@@ -42,7 +42,7 @@ Key differences from Figma:
 │                      Canvas Context                         │
 │  (Penpot Plugin API - /src/bridges/)                       │
 │                                                             │
-│  penpot.ui.onMessage = async (msg: any) => {               │
+│  penpot.ui.onMessage(async (msg: any) => {               │
 │    const path = msg.pluginMessage   // ← unwrap here        │
 │    const actions = {                                        │
 │      CREATE_NODE: async () => {                            │
@@ -51,7 +51,7 @@ Key differences from Figma:
 │      }                                                      │
 │    }                                                        │
 │    actions[path.type]?.()                                  │
-│  }                                                          │
+│  })                                                       │
 └─────────────────────────────────────────────────────────────┘
                            │
                            │ penpot.ui.sendMessage
@@ -121,7 +121,7 @@ sendPluginMessage({ pluginMessage: { type: 'CREATE_NODE', data: { ... } } })
 **File**: `/src/bridges/loadUI.ts`
 
 ```typescript
-penpot.ui.onMessage = async (msg: any) => {
+penpot.ui.onMessage(async (msg: any) => {
   const path = msg.pluginMessage  // always unwrap .pluginMessage
 
   const actions: { [key: string]: () => void } = {
@@ -143,7 +143,7 @@ penpot.ui.onMessage = async (msg: any) => {
   } catch {
     return actions['DEFAULT']?.()
   }
-}
+})
 ```
 
 ### 3. Canvas → UI
@@ -249,10 +249,10 @@ CREATE_NODE: async () => {
 ## Debugging
 
 ```typescript
-penpot.ui.onMessage = async (msg: any) => {
+penpot.ui.onMessage(async (msg: any) => {
   const path = msg.pluginMessage
   console.log('📨 Received:', path.type, path.data)
   // ...
   console.log('✅ Processed:', path.type)
-}
+})
 ```

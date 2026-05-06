@@ -116,7 +116,7 @@ src/
 | Open UI           | `figma.showUI(__html__, { ... })`        | `penpot.ui.open(title, url, { ... })`           |
 | Canvas → UI       | `figma.ui.postMessage({ type, data })`   | `penpot.ui.sendMessage({ type, data })`         |
 | UI → Canvas       | `parent.postMessage({ pluginMessage })` | dispatch `pluginMessage` CustomEvent (proxy)    |
-| Receive in Canvas | `figma.ui.onmessage = (msg) => ...`      | `penpot.ui.onMessage = (msg) => ...` + `msg.pluginMessage` |
+| Receive in Canvas | `figma.ui.onmessage = (msg) => ...`      | `penpot.ui.onMessage((msg) => ...)` + `msg.pluginMessage` |
 | Receive in UI     | `event.data.pluginMessage`               | `(event as CustomEvent).detail` on `platformMessage` |
 | Storage           | `figma.clientStorage` (async, typed)     | `penpot.localStorage` (sync, string-only)       |
 | Resize            | `figma.ui.resize(w, h)`                  | Not supported — fixed at open time              |

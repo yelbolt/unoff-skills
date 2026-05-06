@@ -91,7 +91,7 @@ createI18n() (synchronous, no run handler)
     ↓
 loadUI()
     ├── penpot.ui.open(title, globalConfig.urls.uiUrl, { width, height })
-    ├── penpot.ui.onMessage = async (msg) => { ... }
+    ├── penpot.ui.onMessage(async (msg) => { ... })
     └── penpot.on('themechange', () => penpot.ui.sendMessage({ type: 'SET_THEME', ... }))
 ```
 
@@ -104,7 +104,7 @@ penpot.ui.open(tolgee.t('fullName', { instance: '...' }), globalConfig.urls.uiUr
   height: globalConfig.limits.height,
 })
 
-penpot.ui.onMessage = async (msg: any) => {
+penpot.ui.onMessage(async (msg: any) => {
   const path = msg.pluginMessage  // ← always unwrap .pluginMessage (differs from Figma)
   // ...action map
 }
