@@ -1,6 +1,6 @@
 ---
 name: state-management
-description: State management using Nanostores atoms ($prefix, subscribe, dual update), PureComponent class state, and Figma Client Storage sync. Use when adding shared state, managing user preferences across sessions, or syncing state between Canvas and UI.
+description: State management using Nanostores atoms ($prefix, subscribe, dual update), PureComponent class state, and Canvas storage sync (figma.clientStorage on Figma, penpot.localStorage on Penpot). Use when adding shared state, managing user preferences across sessions, or syncing state between Canvas and UI.
 ---
 
 # State Management
@@ -526,9 +526,11 @@ export const useConsent = create<ConsentState>()(
 )
 ```
 
-## Sync with Figma Storage
+## Sync with Canvas Storage
 
-### Syncing Zustand with Client Storage
+The UI side is **identical across platforms**. The sync mechanism always uses `sendPluginMessage` and listens on `platformMessage`. The platform difference is only on the Canvas side: `figma.clientStorage` (Figma) vs `penpot.localStorage` (Penpot) — see [bridge/figma/bridge-functions.md](../bridge/figma/bridge-functions.md) and [bridge/penpot/bridge-functions.md](../bridge/penpot/bridge-functions.md).
+
+### Syncing Zustand with Canvas Storage
 
 ```typescript
 // /src/app/stores/preferences.ts
@@ -541,7 +543,7 @@ interface PreferencesState {
   language: string
   
   setTheme: (theme: 'light' | 'dark') => void
-  loadFromFigma: () => void
+  loadFromCanvas: () => void
 }
 
 export const usePreferences = create<PreferencesState>((set) => ({
@@ -551,7 +553,7 @@ export const usePreferences = create<PreferencesState>((set) => ({
   setTheme: (theme) => {
     set({ theme })
     
-    // Sync to Figma storage
+    // Sync to Canvas storage (platform-agnostic from UI side)
     sendPluginMessage({
       pluginMessage: {
         type: 'SAVE_PREFERENCES',
@@ -560,19 +562,16 @@ export const usePreferences = create<PreferencesState>((set) => ({
     })
   },
   
-  loadFromFigma: () => {
-    // Request preferences from Canvas
+  loadFromCanvas: () => {
     sendPluginMessage({
-      pluginMessage: {
-        type: 'LOAD_PREFERENCES'
-      }
+      pluginMessage: { type: 'LOAD_PREFERENCES' }
     })
   }
 }))
 
-// Listen for response from Canvas
-window.addEventListener('message', (event) => {
-  const msg = event.data.pluginMessage
+// Listen for response from Canvas (via platformMessage proxy)
+window.addEventListener('platformMessage', (event) => {
+  const msg = (event as CustomEvent).detail
   
   if (msg?.type === 'PREFERENCES_LOADED') {
     usePreferences.setState(msg.data)
@@ -838,9 +837,10 @@ Update Zustand Store   sendPluginMessage()
     ↓                       ↓
 Persist to localStorage   Canvas Bridge
                              ↓
-                        figma.clientStorage
+                Canvas storage
+                   (figma.clientStorage / penpot.localStorage)
                              ↓
-                        postMessage back
+                        sendMessage back
                              ↓
                         Update UI State
 ```

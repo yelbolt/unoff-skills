@@ -43,26 +43,23 @@ The plugin uses a layered error handling strategy across its three architecture 
 
 ### loadUI Action Map
 
-In `bridges/loadUI.ts`, the main message handler uses a try/catch around an action map:
+In `bridges/loadUI.ts`, the main message handler uses a try/catch around an action map. The catch block always falls back to `DEFAULT` (a no-op) to prevent the plugin sandbox from crashing.
+
+> **Platform note** — The action map structure is identical across platforms, but the Canvas API calls inside each action differ. The examples below show Figma. For Penpot equivalents see [bridge/penpot/communication-pattern.md](../bridge/penpot/communication-pattern.md).
+
+**Figma:**
 
 ```typescript
-// bridges/loadUI.ts
+// bridges/loadUI.ts (Figma)
 const actions: Record<string, () => void> = {
-  SET_ITEMS: () => { /* save to client storage */ },
-  GET_ITEMS: () => { /* read from client storage */ },
+  SET_ITEMS: () => { /* figma.clientStorage.setAsync() */ },
+  GET_ITEMS: () => { /* figma.clientStorage.getAsync() */ },
   POST_MESSAGE: () => {
-    figma.notify(path.data.message, {
-      type: 'POST_MESSAGE',
-      data: path.data,
-    })
+    figma.notify(path.data.message, { error: path.data.type === 'ERROR' })
   },
-  OPEN_IN_BROWSER: () => {
-    figma.openExternal(path.data.url)
-  },
-  // ...more actions
+  OPEN_IN_BROWSER: () => figma.openExternal(path.data.url),
   DEFAULT: () => null,
 }
-
 try {
   return actions[path.type]?.()
 } catch {
@@ -70,7 +67,26 @@ try {
 }
 ```
 
-**Pattern**: If any action throws, the catch block silently falls back to `DEFAULT` (a no-op). This prevents the Canvas sandbox from crashing.
+**Penpot** — `figma.notify()` does not exist; surface errors via `POST_MESSAGE` re-sent to the UI. `figma.openExternal()` does not exist; send `OPEN_IN_BROWSER` back to the UI and handle it in the browser.
+
+```typescript
+// bridges/loadUI.ts (Penpot)
+const actions: Record<string, () => void> = {
+  SET_ITEMS: () => { /* penpot.localStorage.setItem() */ },
+  POST_MESSAGE: () => {
+    penpot.ui.sendMessage({ type: 'POST_MESSAGE', data: path.data })
+  },
+  OPEN_IN_BROWSER: () => {
+    penpot.ui.sendMessage({ type: 'OPEN_IN_BROWSER', data: { url: path.data.url, isNewTab: true } })
+  },
+  DEFAULT: () => null,
+}
+try {
+  return actions[path.type]?.()
+} catch {
+  return actions['DEFAULT']?.()
+}
+```
 
 ### Bridge Check Functions
 

@@ -1,220 +1,143 @@
 ---
 name: app-bootstrap
-description: Full startup sequence for Canvas (fonts, i18n, loadUI) and UI (Mixpanel → Sentry → Supabase → Tolgee) sides. Use when modifying initialization order, adding a new service to the startup chain, or debugging startup failures.
+description: Full startup sequence for Canvas (i18n, loadUI) and UI (Mixpanel → Sentry → Supabase → Tolgee → Bridge → Render) sides. Canvas init differs per platform (Figma vs Penpot). UI init is shared. Use when modifying initialization order, adding a new service to the startup chain, or debugging startup failures.
 ---
 
 # App Bootstrap & Initialization
 
 ## Overview
 
-The plugin has two independent initialization sequences — one for each side of the Figma plugin sandbox:
+The plugin has two independent initialization sequences:
 
-1. **Canvas side** (`/src/index.ts`) — Runs in the Figma Plugin API sandbox (no DOM)
-2. **UI side** (`/src/app/index.tsx`) — Runs in the iframe (DOM, Preact, external services)
+1. **Canvas side** (`/src/index.ts`) — Runs in the plugin sandbox (no DOM). **Platform-specific.**
+2. **UI side** (`/src/app/index.tsx`) — Runs in the iframe (DOM, React, external services). **Shared across platforms.**
 
-Both sides communicate through a **platformMessage** bridge established during UI initialization.
+Both sides communicate through the **platformMessage** bridge established during UI initialization.
 
-## Canvas Side Initialization
+---
+
+## Canvas Side Initialization — Figma
 
 **Entry point**: `/src/index.ts`
 
 ```typescript
-import { createI18n } from './utils/i18n'
-import globalConfig from './global.config'
-import loadUI from './bridges/loadUI'
-import checkTrialStatus from './bridges/checks/checkTrialStatus'
-import fr_FR from './app/content/translations/fr-FR.json'
-import en_US from './app/content/translations/en-US.json'
-
-// 1. Pre-load fonts (async, non-blocking)
+// 1. Pre-load fonts (async, non-blocking — needed before any text node creation)
 figma.loadFontAsync({ family: 'Inter', style: 'Regular' })
 figma.loadFontAsync({ family: 'Inter', style: 'Medium' })
 figma.loadFontAsync({ family: 'Martian Mono', style: 'Medium' })
 figma.loadFontAsync({ family: 'Lexend', style: 'Medium' })
 
-// 2. Canvas-side i18n placeholder
-export let tolgee: ReturnType<typeof createI18n>
-
-// 3. Plugin run handler
+// 2. Plugin run handler — all logic lives inside
 figma.on('run', async () => {
-  // Initialize Canvas-side i18n
-  tolgee = createI18n(
-    { 'fr-FR': fr_FR, 'en-US': en_US },
-    globalConfig.lang
-  )
-
-  // Register selection change listener
+  tolgee = createI18n({ 'fr-FR': fr_FR, 'en-US': en_US }, globalConfig.lang)
   figma.on('selectionchange', async () => await checkTrialStatus())
-
-  // Show UI and start message listener
   loadUI()
 })
 ```
 
-### Canvas Initialization Sequence
+### Figma Initialization Sequence
 
 ```
-figma.loadFontAsync() (4 fonts, non-blocking)
+figma.loadFontAsync() × 4 (non-blocking)
     ↓
 figma.on('run')
-    ├── createI18n() - Canvas-side translations
+    ├── createI18n()
     ├── figma.on('selectionchange') → checkTrialStatus()
     └── loadUI()
          ├── figma.clientStorage.getAsync('plugin_window_width/height')
-         ├── figma.showUI(__html__, { width, height, title, themeColors })
+         ├── figma.showUI(__html__, { width, height, title, themeColors: true })
          └── figma.ui.onmessage = async (msg) => { ... }
-              └── Waits for LOAD_DATA from UI
 ```
 
-## loadUI() — Canvas Message Handler
-
-**File**: `/src/bridges/loadUI.ts`
+### Figma loadUI() highlights
 
 ```typescript
-const loadUI = async () => {
-  // Restore saved window size or use defaults
-  const windowSize = {
-    width: (await figma.clientStorage.getAsync('plugin_window_width'))
-      ?? globalConfig.limits.width,
-    height: (await figma.clientStorage.getAsync('plugin_window_height'))
-      ?? globalConfig.limits.height,
-  }
+// Restore saved window size
+const width = (await figma.clientStorage.getAsync('plugin_window_width')) ?? globalConfig.limits.width
+figma.showUI(__html__, { width, height, title: '{{ pluginName }}', themeColors: true })
 
-  // Show the UI iframe
-  figma.showUI(__html__, {
-    width: windowSize.width,
-    height: windowSize.height,
-    title: '{{ pluginName }}',
-    themeColors: true,
-  })
-
-  // Register Canvas-side message handler
-  figma.ui.onmessage = async (msg) => {
-    const path = msg
-
-    const actions: { [key: string]: () => void } = {
-      LOAD_DATA: async () => {
-        // Send user authentication data
-        figma.ui.postMessage({
-          type: 'CHECK_USER_AUTHENTICATION',
-          data: {
-            id: figma.currentUser?.id,
-            fullName: figma.currentUser?.name,
-            avatar: figma.currentUser?.photoUrl,
-            accessToken: await figma.clientStorage.getAsync('supabase_access_token'),
-            refreshToken: await figma.clientStorage.getAsync('supabase_refresh_token'),
-          },
-        })
-
-        // Trigger announcements check
-        figma.ui.postMessage({ type: 'CHECK_ANNOUNCEMENTS_VERSION' })
-
-        // Sequential check chain
-        checkUserConsent(path.data.userConsent)
-          .then(() => checkEditor())
-          .then(() => checkTrialStatus())
-          .then(() => checkCredits())
-          .then(() => checkUserLicense())
-          .then(() => checkUserPreferences())
-      },
-
-      RESIZE_UI: async () => {
-        await figma.clientStorage.setAsync('plugin_window_width', path.data.width)
-        await figma.clientStorage.setAsync('plugin_window_height', path.data.height)
-        figma.ui.resize(path.data.width, path.data.height)
-      },
-
-      CHECK_ANNOUNCEMENTS_STATUS: () =>
-        checkAnnouncementsStatus(path.data.version),
-
-      UPDATE_LANGUAGE: async () => {
-        await figma.clientStorage.setAsync('user_language', path.data.lang)
-        tolgee.changeLanguage(path.data.lang)
-      },
-
-      SET_ITEMS: () => {
-        path.items.forEach(async (item: { key: string; value: unknown }) => {
-          if (typeof item.value === 'object')
-            figma.clientStorage.setAsync(item.key, JSON.stringify(item.value))
-          else if (item.value === 'true' || item.value === 'false')
-            figma.clientStorage.setAsync(item.key, item.value === 'true')
-          else
-            figma.clientStorage.setAsync(item.key, item.value as string)
-        })
-      },
-
-      GET_ITEMS: async () =>
-        path.items.map(async (item: string) => {
-          const value = await figma.clientStorage.getAsync(item)
-          if (value && typeof value === 'string')
-            figma.ui.postMessage({
-              type: `GET_ITEM_${item.toUpperCase()}`,
-              data: { value },
-            })
-        }),
-
-      DELETE_ITEMS: () =>
-        path.items.forEach(async (item: string) =>
-          figma.clientStorage.setAsync(item, '')
-        ),
-
-      OPEN_IN_BROWSER: () => figma.openExternal(path.data.url),
-
-      // Trial / Pro plan handlers
-      GET_TRIAL: async () => figma.ui.postMessage({ type: 'GET_TRIAL' }),
-      ENABLE_TRIAL: async () => {
-        enableTrial(path.data.trialTime, path.data.trialVersion)
-          .then(() => checkTrialStatus())
-      },
-      GET_PRO: async () => figma.ui.postMessage({
-        type: 'GET_PRICING',
-        data: { plans: ['PLAN_A', 'PLAN_B', 'ACTIVATE'] },
-      }),
-      GO_TO_CHECKOUT: async () => payProPlan(),
-      ENABLE_PRO_PLAN: async () =>
-        figma.ui.postMessage({ type: 'ENABLE_PRO_PLAN' }),
-      LEAVE_PRO_PLAN: async () => {
-        figma.ui.postMessage({ type: 'LEAVE_PRO_PLAN' })
-        checkTrialStatus()
-      },
-      WELCOME_TO_PRO: async () =>
-        figma.ui.postMessage({ type: 'WELCOME_TO_PRO' }),
-
-      SIGN_OUT: () => figma.ui.postMessage({
-        type: 'SIGN_OUT',
-        data: { connectionStatus: 'UNCONNECTED', fullName: '', avatar: '', id: undefined },
-      }),
-
-      DEFAULT: () => null,
-    }
-
-    try {
-      return actions[path.type]?.()
-    } catch {
-      return actions['DEFAULT']?.()
-    }
-  }
+figma.ui.onmessage = async (msg) => {
+  const path = msg  // message is the payload directly
+  // ...action map
 }
 ```
 
-### LOAD_DATA Check Chain
+Key Figma-specific actions in the map:
+- `RESIZE_UI` → `figma.clientStorage.setAsync(...)` + `figma.ui.resize(w, h)`
+- `OPEN_IN_BROWSER` → `figma.openExternal(url)`
+- `UPDATE_LANGUAGE` → `figma.clientStorage.setAsync('user_language', lang)`
+- `LOAD_DATA` → reads tokens from `figma.clientStorage.getAsync()`, sends user `photoUrl`
 
-When the UI sends `LOAD_DATA`, the Canvas executes this sequential check chain:
+Full loadUI reference: [bridge/figma/communication-pattern.md](../bridge/figma/communication-pattern.md) and [bridge/figma/bridge-functions.md](../bridge/figma/bridge-functions.md).
+
+---
+
+## Canvas Side Initialization — Penpot
+
+**Entry point**: `/src/index.ts`
+
+```typescript
+// No font loading needed — Penpot handles fonts natively
+// No 'run' event — code executes directly at module load
+
+export const tolgee = createI18n({ 'fr-FR': fr_FR, 'en-US': en_US }, globalConfig.lang)
+loadUI()
+```
+
+### Penpot Initialization Sequence
+
+```
+createI18n() (synchronous, no run handler)
+    ↓
+loadUI()
+    ├── penpot.ui.open(title, globalConfig.urls.uiUrl, { width, height })
+    ├── penpot.ui.onMessage = async (msg) => { ... }
+    └── penpot.on('themechange', () => penpot.ui.sendMessage({ type: 'SET_THEME', ... }))
+```
+
+### Penpot loadUI() highlights
+
+```typescript
+// Size always from globalConfig — no persistence, no resize support
+penpot.ui.open(tolgee.t('fullName', { instance: '...' }), globalConfig.urls.uiUrl, {
+  width: globalConfig.limits.width,
+  height: globalConfig.limits.height,
+})
+
+penpot.ui.onMessage = async (msg: any) => {
+  const path = msg.pluginMessage  // ← always unwrap .pluginMessage (differs from Figma)
+  // ...action map
+}
+```
+
+Key Penpot differences in the action map vs Figma:
+- No `RESIZE_UI` (not supported)
+- `OPEN_IN_BROWSER` → re-sent to UI via `penpot.ui.sendMessage` (no native openExternal)
+- `UPDATE_LANGUAGE` → `penpot.localStorage.setItem('user_language', lang)` (sync)
+- `LOAD_DATA` → reads tokens from `penpot.localStorage.getItem()`, sends user `avatarUrl` (not `photoUrl`)
+- `SET_THEME` sent immediately in LOAD_DATA using `penpot.theme`
+
+Full loadUI reference: [bridge/penpot/communication-pattern.md](../bridge/penpot/communication-pattern.md) and [bridge/penpot/bridge-functions.md](../bridge/penpot/bridge-functions.md).
+
+---
+
+## LOAD_DATA Check Chain (both platforms)
+
+The message types and check function names are identical. The storage calls inside each check differ per platform.
 
 ```
 LOAD_DATA received
-    ├── POST: CHECK_USER_AUTHENTICATION (user id, name, avatar, tokens)
+    ├── POST: CHECK_USER_AUTHENTICATION (id, name, avatar, tokens)
     ├── POST: CHECK_ANNOUNCEMENTS_VERSION
+    ├── POST: CHECK_EDITOR (Figma) / SET_THEME + CHECK_EDITOR (Penpot)
     └── Sequential chain:
         checkUserConsent()
-            → checkEditor()
-                → checkTrialStatus()
-                    → checkCredits()
-                        → checkUserLicense()
-                            → checkUserPreferences()
+            → checkTrialStatus()
+                → checkCredits()
+                    → checkUserLicense()
+                        → checkUserPreferences()
+                            → setState({ isLoaded: true })
 ```
-
-Each check function reads from `figma.clientStorage` and posts a message back to the UI with the result. The UI's `handleMessage` updates state accordingly.
 
 ## UI Side Initialization
 

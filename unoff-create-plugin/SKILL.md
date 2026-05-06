@@ -62,28 +62,28 @@ Third-party integrations and design-to-code workflows.
 | Skill                                                            | When to load                                                                                                                             |
 | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | [externals/implement-design.md](./externals/implement-design.md) | Implementing UI from a Figma spec document, generating production code from a Figma URL, or building components with 1:1 visual fidelity |
-| [externals/payment-systems.md](./externals/payment-systems.md)   | Choosing a monetization model, integrating Figma built-in payments, or implementing Lemon Squeezy license key flows                      |
+| [externals/payment-systems.md](./externals/payment-systems.md)   | Choosing a monetization model — Option A (Figma built-in payments, **Figma only**) or Option B (Lemon Squeezy, cross-platform)         |
 
 ---
 
 ## UI
 
-All concerns for the Preact UI layer: components, styling, state, services, and runtime behaviour.
+All concerns for the React UI layer: components, styling, state, services, and runtime behaviour. **Shared across platforms** except where noted.
 
-| Skill                                                  | When to load                                                                                                                            |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [ui/component-library.md](./ui/component-library.md)   | Building UI, choosing the right `@unoff/ui` component, or understanding the `FeatureStatus` / `isBlocked` permission pattern            |
-| [ui/component-mapping.md](./ui/component-mapping.md)   | Looking up which npm component matches a Figma component, navigating Storybook, or translating a Figma spec into code imports           |
-| [ui/component-patterns.md](./ui/component-patterns.md) | Writing new UI components, composing `WithConfig` / `WithTranslation` HOCs, or handling Canvas→UI messages in a component               |
-| [ui/css-theming.md](./ui/css-theming.md)               | Styling components, handling light/dark mode via `data-theme` / `data-mode`, managing z-index layers, or resizing the plugin window     |
-| [ui/state-management.md](./ui/state-management.md)     | Adding shared Nanostore atoms, managing user preferences across sessions, or syncing state between Canvas and UI                        |
-| [ui/app-bootstrap.md](./ui/app-bootstrap.md)           | Modifying initialization order, adding a new service to the startup chain (Canvas or UI side), or debugging startup failures            |
-| [ui/external-services.md](./ui/external-services.md)   | Integrating or configuring Supabase, Sentry, Mixpanel, Tolgee, or the Notion CMS Cloudflare Worker                                      |
-| [ui/i18n.md](./ui/i18n.md)                             | Adding translations, supporting new languages, or wiring language detection with Tolgee / `createI18n()`                                |
-| [ui/error-handling.md](./ui/error-handling.md)         | Handling errors in bridge functions, external service calls, or surfacing errors to the user via `POST_MESSAGE` / Sentry                |
-| [ui/accessibility.md](./ui/accessibility.md)           | Building modal dialogs, toasts, or interactive components; reviewing a11y compliance; or understanding focus trapping / portal layering |
-| [ui/performance.md](./ui/performance.md)               | Optimizing render cycles, reducing bundle size, or improving startup time                                                               |
-| [ui/types-system.md](./ui/types-system.md)             | Adding new types, extending `BaseProps`, defining union types for state machines, or adding new contexts, modals, events, or languages  |
+| Skill                                                  | Notes      | When to load                                                                                                                            |
+| ------------------------------------------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| [ui/app-bootstrap.md](./ui/app-bootstrap.md)           | ⚠️ Platform sections | Modifying initialization order, adding a new service to the startup chain (Canvas or UI side), or debugging startup failures |
+| [ui/component-library.md](./ui/component-library.md)   | Shared     | Building UI, choosing the right `@unoff/ui` component, or understanding the `FeatureStatus` / `isBlocked` permission pattern            |
+| [ui/component-mapping.md](./ui/component-mapping.md)   | Shared     | Looking up which npm component matches a Figma component, navigating Storybook, or translating a Figma spec into code imports           |
+| [ui/component-patterns.md](./ui/component-patterns.md) | Shared     | Writing new UI components, composing `WithConfig` / `WithTranslation` HOCs, or handling Canvas→UI messages in a component               |
+| [ui/css-theming.md](./ui/css-theming.md)               | ⚠️ Resize section is Figma only | Styling components, handling light/dark mode via `data-theme` / `data-mode`, managing z-index layers              |
+| [ui/state-management.md](./ui/state-management.md)     | Shared     | Adding shared Nanostore atoms, managing user preferences across sessions, or syncing state between Canvas and UI                        |
+| [ui/external-services.md](./ui/external-services.md)   | Shared     | Integrating or configuring Supabase, Sentry, Mixpanel, Tolgee, or the Notion CMS Cloudflare Worker                                      |
+| [ui/i18n.md](./ui/i18n.md)                             | ⚠️ Canvas section has platform variants | Adding translations, supporting new languages, or wiring language detection with Tolgee / `createI18n()` |
+| [ui/error-handling.md](./ui/error-handling.md)         | ⚠️ Canvas section has platform variants | Handling errors in bridge functions, external service calls, or surfacing errors to the user via `POST_MESSAGE` / Sentry |
+| [ui/accessibility.md](./ui/accessibility.md)           | Shared     | Building modal dialogs, toasts, or interactive components; reviewing a11y compliance; or understanding focus trapping / portal layering |
+| [ui/performance.md](./ui/performance.md)               | Shared     | Optimizing render cycles, reducing bundle size, or improving startup time                                                               |
+| [ui/types-system.md](./ui/types-system.md)             | Shared     | Adding new types, extending `BaseProps`, defining union types for state machines, or adding new contexts, modals, events, or languages  |
 
 ---
 

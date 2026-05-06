@@ -22,6 +22,8 @@ Two mutually exclusive payment systems are available. The template includes code
 
 ## Option A — Figma Built-in Payments
 
+> **Figma only** — `figma.payments` is a Figma-specific API. This option is not available on Penpot, Sketch, or Framer. For cross-platform plugins, use Option B (Lemon Squeezy) instead.
+
 Uses the native `figma.payments` Canvas API. Figma handles the checkout UI.
 
 ### Manifest

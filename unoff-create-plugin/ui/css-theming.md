@@ -287,6 +287,8 @@ isFullHeight={this.props.documentWidth <= 460}
 
 ### Plugin Window Resizing
 
+> **Figma only** — Penpot does not support dynamic window resize. The window size is fixed at `penpot.ui.open()` time via `globalConfig.limits`. The `RESIZE_UI` message type and the `Shortcuts` drag grip should be disabled or removed when building for Penpot.
+
 The plugin supports user-driven window resize via a drag grip in the bottom-right corner:
 
 ```typescript
@@ -310,10 +312,10 @@ onResize = (e: MouseEvent, shiftX: number, shiftY: number) => {
 }
 ```
 
-The Canvas side processes `RESIZE_UI`:
+The Canvas side processes `RESIZE_UI` (Figma only):
 
 ```typescript
-// loadUI.ts
+// loadUI.ts (Figma)
 RESIZE_UI: async () => {
   await figma.clientStorage.setAsync('plugin_window_width', path.data.width)
   await figma.clientStorage.setAsync('plugin_window_height', path.data.height)
@@ -323,7 +325,7 @@ RESIZE_UI: async () => {
 
 Size limits come from `globalConfig.limits`:
 - `minWidth` / `minHeight` — Minimum resize dimensions
-- `width` / `height` — Default dimensions
+- `width` / `height` — Default dimensions (used as fixed size on Penpot)
 
 ## Z-Index Architecture
 
