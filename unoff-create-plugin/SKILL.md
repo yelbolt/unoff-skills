@@ -61,7 +61,7 @@ Third-party integrations and design-to-code workflows. Shared across platforms e
 
 | Skill                                                            | When to load                                                                                                                                        |
 | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [externals/implement-design.md](./externals/implement-design.md) | Implementing UI from a design spec, generating production code from a Figma URL, or building components with 1:1 visual fidelity                   |
+| [externals/implement-design.md](./externals/implement-design.md) | Implementing UI from a design spec — Figma (URL + `get_design_context` MCP tools) or Penpot (selection + code execution via `@penpot/mcp`) — or building components with 1:1 visual fidelity |
 | [externals/payment-systems.md](./externals/payment-systems.md)   | Choosing a payment model — Option A (`figma.payments`, Figma only) or Option B (Lemon Squeezy license keys, cross-platform)                       |
 
 ---
