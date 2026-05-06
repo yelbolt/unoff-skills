@@ -1,6 +1,6 @@
 ---
 name: feature-flags
-description: Runtime feature flag system using featuresScheme, FeatureStatus checks, and doSpecificMode() overrides. Use when adding new features, gating features by plan or editor type, or overriding feature state for testing purposes.
+description: Runtime feature flag system using featuresScheme, FeatureStatus checks, and doSpecificMode() overrides. availabilityForEditors is Figma-specific (FigJam, Dev Mode, etc.) — on Penpot use availabilityForServices only. Use when adding new features, gating by plan tier, restricting to specific editors (Figma) or services, or overriding feature state for testing.
 ---
 
 # Feature Flags System

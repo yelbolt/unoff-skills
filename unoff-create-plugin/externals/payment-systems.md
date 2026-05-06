@@ -1,6 +1,6 @@
 ---
 name: payment-systems
-description: Comparison and implementation guide for Figma built-in payments (figma.payments API, interstitial types) and Lemon Squeezy license keys (activate/validate/deactivate). Use when choosing a monetization system or integrating payments before shipping the plugin.
+description: Two monetization options — Option A (figma.payments API with native checkout, Figma-only) and Option B (Lemon Squeezy license keys via CORS worker, cross-platform). For cross-platform plugins use Option B. Use when choosing a payment model, wiring checkout, or implementing license key activate/validate/deactivate flows.
 ---
 
 # Payment Systems

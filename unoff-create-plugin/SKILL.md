@@ -43,47 +43,47 @@ Canvas API usage and data persistence. **Platform-specific** — load the correc
 
 ## Config
 
-Build pipeline, runtime configuration, code quality, and system-level concerns.
+Build pipeline, runtime configuration, code quality, and system-level concerns. Shared across platforms.
 
-| Skill                                                  | When to load                                                                                                                 |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| [config/global-config.md](./config/global-config.md)   | Adding new config values, understanding what is available via `ConfigContext`, or wiring environment variables               |
-| [config/feature-flags.md](./config/feature-flags.md)   | Adding new features, gating features by plan or editor type, or overriding feature state for testing                         |
-| [config/credits-system.md](./config/credits-system.md) | Adding feature usage limits, wiring a feature to a credit gate, or implementing the `isReached → isBlocked` pattern          |
-| [config/vite-build.md](./config/vite-build.md)         | Modifying the build pipeline, adding Vite plugins, managing environment variables, or understanding dual-bundle architecture |
-| [config/code-quality.md](./config/code-quality.md)     | Configuring linting rules, writing Vitest tests for Canvas or UI layers, or setting up CI/CD quality gates                   |
+| Skill                                                  | When to load                                                                                                                                                  |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [config/global-config.md](./config/global-config.md)   | Adding new config values, understanding what is available via `ConfigContext`, or wiring environment variables                                                |
+| [config/feature-flags.md](./config/feature-flags.md)   | Adding new features, gating by plan tier, restricting to specific editors (Figma: FigJam/Dev Mode) or services, or overriding feature state for testing       |
+| [config/credits-system.md](./config/credits-system.md) | Adding feature usage limits, wiring a feature to a credit gate, or implementing the `isReached → isBlocked` pattern                                           |
+| [config/vite-build.md](./config/vite-build.md)         | Modifying the build pipeline, adding Vite plugins, adding env vars, or understanding how platform-specific CSS is excluded from the bundle at build time      |
+| [config/code-quality.md](./config/code-quality.md)     | Configuring linting rules, writing Vitest tests for Canvas or UI layers, or setting up CI/CD quality gates                                                    |
 
 ---
 
 ## Externals
 
-Third-party integrations and design-to-code workflows.
+Third-party integrations and design-to-code workflows. Shared across platforms except Option A of payment-systems.
 
-| Skill                                                            | When to load                                                                                                                             |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| [externals/implement-design.md](./externals/implement-design.md) | Implementing UI from a Figma spec document, generating production code from a Figma URL, or building components with 1:1 visual fidelity |
-| [externals/payment-systems.md](./externals/payment-systems.md)   | Choosing a monetization model — Option A (Figma built-in payments, **Figma only**) or Option B (Lemon Squeezy, cross-platform)         |
+| Skill                                                            | When to load                                                                                                                                        |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [externals/implement-design.md](./externals/implement-design.md) | Implementing UI from a design spec, generating production code from a Figma URL, or building components with 1:1 visual fidelity                   |
+| [externals/payment-systems.md](./externals/payment-systems.md)   | Choosing a payment model — Option A (`figma.payments`, Figma only) or Option B (Lemon Squeezy license keys, cross-platform)                       |
 
 ---
 
 ## UI
 
-All concerns for the React UI layer: components, styling, state, services, and runtime behaviour. **Shared across platforms** except where noted.
+All concerns for the React UI layer. Shared across platforms except where noted.
 
-| Skill                                                  | Notes      | When to load                                                                                                                            |
-| ------------------------------------------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [ui/app-bootstrap.md](./ui/app-bootstrap.md)           | ⚠️ Platform sections | Modifying initialization order, adding a new service to the startup chain (Canvas or UI side), or debugging startup failures |
-| [ui/component-library.md](./ui/component-library.md)   | Shared     | Building UI, choosing the right `@unoff/ui` component, or understanding the `FeatureStatus` / `isBlocked` permission pattern            |
-| [ui/component-mapping.md](./ui/component-mapping.md)   | Shared     | Looking up which npm component matches a Figma component, navigating Storybook, or translating a Figma spec into code imports           |
-| [ui/component-patterns.md](./ui/component-patterns.md) | Shared     | Writing new UI components, composing `WithConfig` / `WithTranslation` HOCs, or handling Canvas→UI messages in a component               |
-| [ui/css-theming.md](./ui/css-theming.md)               | ⚠️ Resize section is Figma only | Styling components, handling light/dark mode via `data-theme` / `data-mode`, managing z-index layers              |
-| [ui/state-management.md](./ui/state-management.md)     | Shared     | Adding shared Nanostore atoms, managing user preferences across sessions, or syncing state between Canvas and UI                        |
-| [ui/external-services.md](./ui/external-services.md)   | Shared     | Integrating or configuring Supabase, Sentry, Mixpanel, Tolgee, or the Notion CMS Cloudflare Worker                                      |
-| [ui/i18n.md](./ui/i18n.md)                             | ⚠️ Canvas section has platform variants | Adding translations, supporting new languages, or wiring language detection with Tolgee / `createI18n()` |
-| [ui/error-handling.md](./ui/error-handling.md)         | ⚠️ Canvas section has platform variants | Handling errors in bridge functions, external service calls, or surfacing errors to the user via `POST_MESSAGE` / Sentry |
-| [ui/accessibility.md](./ui/accessibility.md)           | Shared     | Building modal dialogs, toasts, or interactive components; reviewing a11y compliance; or understanding focus trapping / portal layering |
-| [ui/performance.md](./ui/performance.md)               | Shared     | Optimizing render cycles, reducing bundle size, or improving startup time                                                               |
-| [ui/types-system.md](./ui/types-system.md)             | Shared     | Adding new types, extending `BaseProps`, defining union types for state machines, or adding new contexts, modals, events, or languages  |
+| Skill                                                  | When to load                                                                                                                                                        |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [ui/app-bootstrap.md](./ui/app-bootstrap.md)           | Modifying initialization order, adding a service to the startup chain, or debugging startup failures — Canvas init is platform-specific (Figma vs Penpot)           |
+| [ui/component-library.md](./ui/component-library.md)   | Building UI, choosing the right `@unoff/ui` component, or understanding the `FeatureStatus` / `isBlocked` permission pattern                                        |
+| [ui/component-mapping.md](./ui/component-mapping.md)   | Looking up which npm export matches a UI component spec, navigating Storybook, or translating a design spec into code imports                                       |
+| [ui/component-patterns.md](./ui/component-patterns.md) | Writing new UI components, composing `WithConfig` / `WithTranslation` HOCs, or handling Canvas→UI messages in a component                                           |
+| [ui/css-theming.md](./ui/css-theming.md)               | Styling components, handling light/dark mode via `data-theme` / `data-mode`, managing z-index — window resize is Figma-only (Penpot: fixed size)                    |
+| [ui/state-management.md](./ui/state-management.md)     | Adding Nanostore atoms, managing user preferences across sessions, or syncing state between Canvas and UI                                                           |
+| [ui/external-services.md](./ui/external-services.md)   | Integrating or configuring Supabase, Sentry, Mixpanel, Tolgee, or the Notion CMS Cloudflare Worker                                                                  |
+| [ui/i18n.md](./ui/i18n.md)                             | Adding translations, supporting new languages, or persisting language preference — Canvas storage differs per platform (figma.clientStorage vs penpot.localStorage) |
+| [ui/error-handling.md](./ui/error-handling.md)         | Handling errors in bridge functions, external service calls, or surfacing errors via `POST_MESSAGE` / Sentry — Canvas action examples have platform variants        |
+| [ui/accessibility.md](./ui/accessibility.md)           | Building modal dialogs, toasts, interactive components, reviewing a11y, or understanding focus trapping / portal layering                                           |
+| [ui/performance.md](./ui/performance.md)               | Optimizing render cycles, reducing bundle size, or improving startup time                                                                                           |
+| [ui/types-system.md](./ui/types-system.md)             | Adding new types, extending `BaseProps`, defining union types for state machines, or adding new contexts, modals, events, or languages                              |
 
 ---
 

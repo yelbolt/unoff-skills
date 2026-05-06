@@ -1,6 +1,6 @@
 ---
 name: css-theming
-description: Theme system via data-theme and data-mode attributes, CSS custom properties, unoff-ui CSS modules (layouts, texts), and responsive layout via documentWidth breakpoints. Use when styling components, handling light/dark mode, managing z-index layers, or resizing the plugin window.
+description: Theme system via data-theme and data-mode attributes, CSS custom properties, unoff-ui CSS modules (layouts, texts), and responsive layout via documentWidth breakpoints. Window resize (RESIZE_UI + figma.ui.resize) is Figma-only — Penpot uses a fixed size set at open time. Use when styling components, handling light/dark mode, managing z-index layers, or working with the resize grip.
 ---
 
 # CSS Architecture & Theming

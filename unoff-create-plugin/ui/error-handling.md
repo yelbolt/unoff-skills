@@ -1,6 +1,6 @@
 ---
 name: error-handling
-description: Error handling patterns for Canvas (try/catch in action map) and UI (Promise .catch chains, Sentry, POST_MESSAGE notifications). Use when handling errors in bridge functions, external service calls, or surfacing errors to the user.
+description: Error handling patterns for Canvas (try/catch in action map — Figma uses figma.notify, Penpot re-sends to UI) and UI (Promise .catch chains, Sentry dev/prod split, POST_MESSAGE notifications). Use when handling errors in bridge functions, external service calls, or surfacing errors to the user via toast or Sentry.
 ---
 
 # Error Handling & Monitoring

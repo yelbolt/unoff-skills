@@ -1,6 +1,6 @@
 ---
 name: vite-build
-description: Dual Vite build system producing an IIFE Canvas bundle (IS_PLUGIN=true) and a single-file UI HTML. Use when modifying the build pipeline, adding Vite plugins, managing environment variables, or understanding the three-layer Preact aliasing.
+description: Dual Vite build with IS_PLUGIN switch — IIFE Canvas bundle (plugin.js) and viteSingleFile UI HTML (index.html). Covers excludeUnwantedCssPlugin (strips platform-specific CSS at build time for Figma/Penpot/Sketch/Framer), React-to-Preact aliasing, and VITE_* environment variable handling. Use when modifying the build pipeline, adding Vite plugins, adding env vars, understanding how platform CSS is excluded, or debugging build output.
 ---
 
 # Vite Build Configuration
