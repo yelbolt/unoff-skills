@@ -39,7 +39,9 @@ versions: {
 
 ## Canvas Side — `checkCredits.ts`
 
-Called once at startup via `CHECK_CREDITS` in `loadUI.ts`. Reads and resolves credits from `figma.clientStorage`, handling four cases:
+Called once at startup via `CHECK_CREDITS` in `loadUI.ts`. Reads and resolves credits from Canvas storage, handling four cases:
+
+> **Platform note** — Storage calls are `figma.clientStorage.getAsync/setAsync` on Figma and `penpot.localStorage.getItem/setItem` on Penpot. The logic and message types are identical. See [canvas/penpot/data-storage.md](../canvas/penpot/data-storage.md) for Penpot storage patterns.
 
 | Condition | Action |
 |---|---|
@@ -60,7 +62,7 @@ figma.ui.postMessage({
 })
 ```
 
-**Storage keys** (all in `figma.clientStorage`):
+**Storage keys** (same on both platforms — Figma: `figma.clientStorage`, Penpot: `penpot.localStorage`):
 
 | Key | Value |
 |---|---|

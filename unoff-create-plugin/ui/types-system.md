@@ -126,7 +126,7 @@ export type Editor =
   | 'framer'
 ```
 
-Detected from the Figma API (`figma.editorType`) on the Canvas side. Used in `FeatureStatus` to control feature availability per editor.
+On **Figma**: detected from `figma.editorType` on the Canvas side. On **Penpot**: no `editorType` — the value is always `'penpot'`, set directly in `globalConfig.env.editor`. `availabilityForEditors` checks should use only `'penpot'` for Penpot plugins; FigJam/Dev Mode values are Figma-only.
 
 #### Modal & Announcement Types
 
@@ -302,7 +302,7 @@ export interface UserIdentity {
 ```
 
 - `UserSession` — Authenticated user (Supabase), includes `connectionStatus`
-- `UserIdentity` — Figma identity from `figma.currentUser`, always available
+- `UserIdentity` — platform user identity, always available (Figma: `figma.currentUser?.name / photoUrl` — Penpot: `penpot.currentUser.name / avatarUrl`)
 
 ## Type Patterns
 
