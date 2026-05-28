@@ -1,22 +1,23 @@
 ---
 name: component-patterns
-description: PureComponent class pattern with WithConfig and WithTranslation HOCs, BaseProps spread, platformMessage event handling, and createPortal for modals/toasts. Use when writing new UI components, composing HOCs, or handling Canvas→UI messages in a component.
+description: PureComponent class pattern with WithConfig and WithTranslation HOCs, BaseProps spread, platformMessage event handling, and createPortal for modals/toasts. Always import from preact/compat (or preact for type-only imports) — never import React from 'react' in plugin source files. Use when writing new UI components, composing HOCs, or handling Canvas→UI messages in a component.
 ---
 
 # Component Patterns
 
 ## Overview
 
-The plugin uses **Preact** (aliased as React via `preact/compat`) with **class components** as the primary pattern. Components extend `PureComponent` or `Component` from `preact/compat` and receive shared data through Higher-Order Components (HOCs).
+The plugin uses **Preact** with **class components** as the primary pattern. Components extend `PureComponent` or `Component` from `preact/compat` and receive shared data through Higher-Order Components (HOCs).
 
-> **Important**: This project does NOT use functional components with hooks as the primary pattern. Class components with HOCs are the standard.
+> **Import rule**: Always import from `preact/compat` (or `preact` for type-only imports). Never write `import React from 'react'` in plugin source files. The React → Preact aliasing is still in place at the build level for third-party libraries (e.g. `@tolgee/react`), but application code must import from Preact directly.
+
+> **Component rule**: This project does NOT use functional components with hooks as the primary pattern. Class components with HOCs are the standard.
 
 ## Class Component Pattern
 
 ### Basic Structure
 
 ```typescript
-import React from 'react'
 import { PureComponent } from 'preact/compat'
 
 interface MyComponentProps {
@@ -101,6 +102,7 @@ Injects the `t` translation function from Tolgee's `useTranslate` hook:
 ```typescript
 // /src/app/ui/components/WithTranslation.tsx
 import { useTranslate } from '@tolgee/react'
+import type { ComponentType } from 'preact'
 
 export interface WithTranslationProps {
   t: (key: string, params?: Record<string, any>) => string
@@ -119,7 +121,7 @@ export const WithTranslation = <P extends WithTranslationProps>(
 }
 ```
 
-> Note: `WithTranslation` is a functional wrapper (uses a hook internally) while `WithConfig` is a class component wrapper. This is because Tolgee requires the `useTranslate` hook.
+> Note: `WithTranslation` is a functional wrapper (uses a hook internally) while `WithConfig` is a class component wrapper. This is because Tolgee requires the `useTranslate` hook. `ComponentType` is imported as a type from `preact` (not `preact/compat`) since only the type is needed here.
 
 ### HOC Composition
 
@@ -450,7 +452,21 @@ this.props.onReOpenAbout({ modalContext: 'ABOUT' })
 
 ## Best Practices
 
-### 1. Use PureComponent by Default
+### 1. Import from Preact Directly
+
+```typescript
+// ✅ Import from preact/compat (runtime) or preact (types)
+import { PureComponent, Component, createPortal } from 'preact/compat'
+import type { ComponentType } from 'preact'
+
+// ❌ Never import React — even though the alias resolves it at build time
+import React from 'react'
+import { PureComponent } from 'react'
+```
+
+The build-level alias (`react` → `preact/compat`) exists for third-party libraries only. Application code must import from Preact directly.
+
+### 3. Use PureComponent by Default
 
 ```typescript
 // ✅ PureComponent for automatic shallow comparison
@@ -460,7 +476,7 @@ class MyComponent extends PureComponent<Props, State> { ... }
 class MyComponent extends Component<Props, State> { ... }
 ```
 
-### 2. Arrow Functions for Handlers
+### 4. Arrow Functions for Handlers
 
 ```typescript
 // ✅ Arrow functions are auto-bound
@@ -474,7 +490,7 @@ handleClick() {
 }
 ```
 
-### 3. HOC Composition Order
+### 5. HOC Composition Order
 
 ```typescript
 // ✅ WithTranslation outermost, WithConfig innermost
@@ -483,7 +499,7 @@ export default WithTranslation(WithConfig(MyComponent))
 // This ensures config is available when translation function is injected
 ```
 
-### 4. Spread Props for Child Passing
+### 6. Spread Props for Child Passing
 
 ```typescript
 // ✅ Spread both props and state for child components
@@ -499,7 +515,7 @@ export default WithTranslation(WithConfig(MyComponent))
 />
 ```
 
-### 5. Use Feature Component for Gating
+### 7. Use Feature Component for Gating
 
 ```typescript
 // ✅ Feature component + FeatureStatus
@@ -511,7 +527,7 @@ export default WithTranslation(WithConfig(MyComponent))
 {someCondition && <ExpensiveComponent />}
 ```
 
-### 6. Clean Up in componentWillUnmount
+### 8. Clean Up in componentWillUnmount
 
 ```typescript
 // ✅ Remove all listeners and subscriptions
