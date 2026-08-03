@@ -1,3 +1,5 @@
+[![skills.sh](https://skills.sh/b/yelbolt/unoff-skills)](https://skills.sh/yelbolt/unoff-skills)
+
 # Unoff Skills
 
 This directory contains comprehensive documentation for the plugin architecture, organized by responsibility layer. Currently targeting **Figma** and **Penpot** — support for **Framer** and **Sketch** is coming soon.
