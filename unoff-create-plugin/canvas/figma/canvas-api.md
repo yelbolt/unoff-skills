@@ -14,7 +14,7 @@ The Canvas layer is the "backend" of your plugin. Only here can you:
 - Read/write plugin data and client storage
 - Handle selection and viewport
 
-You **cannot** use React, DOM APIs, or fetch external URLs from Canvas context.
+See [core.md](../../core.md) for the non-negotiables (no DOM/`window`/authenticated `fetch` in Canvas code).
 
 ## Node Creation
 

@@ -16,6 +16,36 @@ from here and emit the format each assistant expects.
 | `unoff-platform-services`    | `config`, `externals`                   | Config, Vite, feature flags, credits, external services, payments            |
 | `unoff-conformance-reviewer` | all                                     | Quality gate — conventions, message contracts, platform parity, build        |
 
+## How they run
+
+The architect **fixes the message contract before delegating** — every `type`,
+its payload shape, its direction, and the union members to add in
+`src/app/types/`. That is what removes the need for specialists to negotiate
+with each other, so `unoff-canvas-bridge`, `unoff-ui` and
+`unoff-platform-services` run **concurrently** on disjoint paths. Serialize only
+on a real data dependency.
+
+`unoff-conformance-reviewer` runs last, scoped to the layers the diff actually
+touches, and runs its mechanical greps before reading any code.
+
+## Context loading
+
+Every agent loads **`unoff-create-plugin/core.md` first** — the single source of
+truth for stack facts, the architecture, the 4-point message contract, and the
+Figma/Penpot differences table. No skill file, agent, or rules file restates
+those; they link to it.
+
+Beyond that, agents load only the rows they need from
+[`unoff-create-plugin/SKILL.md`](../unoff-create-plugin/SKILL.md), which is a
+pure routing index. Large references (`ui/component-library.md`,
+`externals/implement-design.md`) are **entry files that route on to detail
+files** — so the index never has to know the detail filenames, and an agent
+targeting one platform never loads the other's workflow.
+
+Short guardrails are deliberately repeated inline in the agent prompts: a system
+prompt is loaded once and cached, whereas reading `core.md` costs a tool call.
+The rule is inline guardrails, on-demand tables.
+
 ## Frontmatter
 
 ```yaml

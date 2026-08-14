@@ -14,7 +14,7 @@ The Canvas layer runs in the Penpot plugin worker context. Only here can you:
 - Read selection and viewport
 - Read/write `penpot.localStorage`
 
-You **cannot** use React, DOM APIs, or fetch external URLs from Canvas context.
+See [core.md](../../core.md) for the non-negotiables (no DOM/`window`/authenticated `fetch` in Canvas code).
 
 **Key differences from Figma:**
 - Frames are called **Boards** → `penpot.createBoard()`

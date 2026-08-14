@@ -15,6 +15,11 @@ Max 2 blocking questions. 1 at a time, closed options + recommended default. Sta
 
 ## Scope
 
+Load `unoff-create-plugin/core.md` first, then **only** the row matching the
+task. `externals/implement-design.md` is an entry file that routes on to the
+Figma and Penpot workflows separately — follow its table and load only the
+platform you are targeting.
+
 | Task                                                            | File to load                  |
 | --------------------------------------------------------------- | ----------------------------- |
 | new config value, `ConfigContext`, env var wiring                | `config/global-config.md`     |
@@ -52,4 +57,5 @@ Max 2 blocking questions. 1 at a time, closed options + recommended default. Sta
 
 ## Uses skills
 
-- **`unoff-create-plugin`** — load the `config/`, `externals/`, and `ui/external-services.md` files above
+- **`unoff-create-plugin`** — `core.md` first, then only the `config/`,
+  `externals/`, or `ui/external-services.md` row the task needs

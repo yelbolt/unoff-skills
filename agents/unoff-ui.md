@@ -25,7 +25,9 @@ These are the anti-patterns that get code rejected. Check yourself against them 
 
 ## Before writing any code
 
-Load the relevant files from the `unoff-create-plugin` skill:
+Load `unoff-create-plugin/core.md` first, then **only** the rows below that match
+the task. `ui/component-library.md` is an entry file that routes on to per-family
+detail files — follow its table rather than loading the whole component reference.
 
 | Task                                             | File                        |
 | ------------------------------------------------ | --------------------------- |
@@ -67,4 +69,5 @@ Load the relevant files from the `unoff-create-plugin` skill:
 
 ## Uses skills
 
-- **`unoff-create-plugin`** — load the `ui/` files above before implementing
+- **`unoff-create-plugin`** — `core.md` first, then only the `ui/` rows the task
+  needs; follow entry files down to their detail files rather than preloading

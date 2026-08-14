@@ -7,16 +7,7 @@ description: Dual Vite build with IS_PLUGIN switch — IIFE Canvas bundle (plugi
 
 ## Overview
 
-The plugin uses a **dual-build Vite system**: one build produces the Canvas-side IIFE bundle (`plugin.js`), and another produces the UI-side single HTML file (`index.html`). Both builds are orchestrated from a single `vite.config.ts` with the `IS_PLUGIN` environment variable as the switch.
-
-## When to Use
-
-- Understanding how the plugin is compiled and deployed
-- Adding new environment variables
-- Modifying build behavior (minification, sourcemaps)
-- Adding Vite plugins
-- Debugging build issues
-- Working with Sentry source maps
+Both builds are orchestrated from a single `vite.config.ts` with the `IS_PLUGIN` environment variable as the switch. See [core.md](../core.md) for the dual-build rule and why the output shape must not change; this file covers the concrete configuration.
 
 ## Build Commands
 
@@ -25,9 +16,8 @@ The plugin uses a **dual-build Vite system**: one build produces the Canvas-side
 | `build` | `cross-env npx vite build --mode development & cross-env IS_PLUGIN=true npx vite build --mode development` | Dev build (parallel, both targets) |
 | `build:prod` | `cross-env npx vite build --mode production && cross-env IS_PLUGIN=true npx vite build --mode production` | Prod build (sequential, both targets) |
 | `start:dev` | `npm run build & vite preview` | Dev build + preview server |
-| `typecheck` | `npx tsc --noEmit` | Type checking only |
-| `lint` | `npx eslint ./src/** --fix --ext .ts,.tsx .` | Lint with auto-fix |
-| `format` | `npx prettier './src' --write` | Format all source files |
+
+`typecheck` / `lint` / `format` scripts and their rule config are in [code-quality.md](./code-quality.md).
 
 ### Build Flow
 
@@ -377,61 +367,7 @@ Key fields:
 
 ## Code Quality Tools
 
-### ESLint (.eslintrc.json)
-
-```json
-{
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],
-  "plugins": ["react", "@typescript-eslint", "import"],
-  "rules": {
-    "@typescript-eslint/no-explicit-any": [1],
-    "eqeqeq": ["error", "always", { "null": "ignore" }],
-    "curly": ["warn", "multi"],
-    "prefer-const": "warn",
-    "import/order": ["error", {
-      "groups": ["builtin", "external", "internal", "parent", "sibling", "index", "object", "type"],
-      "pathGroups": [
-        { "pattern": "@a_ng_d/**", "group": "external", "position": "before" },
-        { "pattern": "*.css", "group": "sibling", "position": "after" }
-      ],
-      "newlines-between": "never",
-      "alphabetize": { "order": "desc", "caseInsensitive": true }
-    }]
-  }
-}
-```
-
-Key rules:
-- `@a_ng_d/*` imports sort before other externals
-- CSS imports come last within siblings
-- No newlines between import groups
-- Imports sorted alphabetically (descending)
-- Strict equality required (except null comparisons)
-
-### Prettier (.prettierrc.json)
-
-```json
-{
-  "plugins": ["prettier-plugin-css-order"],
-  "trailingComma": "es5",
-  "tabWidth": 2,
-  "semi": false,
-  "singleQuote": true,
-  "parser": "typescript",
-  "singleAttributePerLine": true
-}
-```
-
-Key conventions:
-- **No semicolons**
-- **Single quotes**
-- **2-space indentation**
-- **Single attribute per line** in JSX
-- **CSS property ordering** via `prettier-plugin-css-order`
+ESLint and Prettier configuration, rule tables, and the test setup are covered in [code-quality.md](./code-quality.md) — not repeated here.
 
 ## Best Practices
 

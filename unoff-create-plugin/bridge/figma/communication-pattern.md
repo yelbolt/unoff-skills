@@ -12,61 +12,17 @@ Figma plugins have a **two-context architecture**:
 - **UI Context**: Runs in an iframe, has access to React, DOM, external APIs
 - **Canvas Context**: Has access to Figma Plugin API (`figma.*`)
 
-These contexts communicate through **message passing**.
+These contexts communicate through **message passing**. See [core.md](../../core.md) for the four-point contract every new action must satisfy.
 
 ## Architecture Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        UI Context                           │
-│  (React App - iframe - /src/app/)                          │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │  React Component                                      │ │
-│  │                                                        │ │
-│  │  import { sendPluginMessage } from 'utils'            │ │
-│  │                                                        │ │
-│  │  const handleAction = () => {                         │ │
-│  │    sendPluginMessage({                                │ │
-│  │      pluginMessage: {                                 │ │
-│  │        type: 'CREATE_NODE',                           │ │
-│  │        data: { ... }                                  │ │
-│  │      }                                                 │ │
-│  │    })                                                  │ │
-│  │  }                                                     │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                          │                                  │
-│                          │ parent.postMessage               │
-│                          ▼                                  │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      Canvas Context                         │
-│  (Figma Plugin API - /src/bridges/)                        │
-│                                                             │
-│  figma.ui.onmessage = async (msg) => {                     │
-│    const actions = {                                        │
-│      CREATE_NODE: async () => {                            │
-│        const result = await createNode(msg.data)           │
-│        figma.ui.postMessage({ type: 'NODE_CREATED', ... }) │
-│      }                                                      │
-│    }                                                        │
-│    actions[msg.type]?.()                                   │
-│  }                                                          │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           │ figma.ui.postMessage
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                        UI Context                           │
-│                                                             │
-│  window.addEventListener('message', (event) => {           │
-│    const msg = event.data.pluginMessage                     │
-│    if (msg?.type === 'NODE_CREATED') { ... }               │
-│  })                                                         │
-└─────────────────────────────────────────────────────────────┘
+UI (iframe, /src/app/) → parent.postMessage → Canvas (/src/bridges/)
+Canvas: figma.ui.onmessage = async (msg) => actions[msg.type]?.()
+Canvas → figma.ui.postMessage → UI: window.addEventListener('message', ...)
 ```
+
+See the numbered steps below for the actual code at each hop.
 
 ## Message Flow
 
@@ -158,10 +114,7 @@ RESIZE_UI: async () => {
 
 ## Message Type Conventions
 
-| Direction    | Pattern          | Example                  |
-| ------------ | ---------------- | ------------------------ |
-| UI → Canvas  | `VERB_NOUN`      | `CREATE_RECTANGLE`       |
-| Canvas → UI  | `NOUN_VERB_PAST` | `RECTANGLE_CREATED`      |
+Naming follows [core.md](../../core.md): `CREATE_RECTANGLE` (UI → Canvas) / `RECTANGLE_CREATED` (Canvas → UI).
 
 ## Message Structure
 

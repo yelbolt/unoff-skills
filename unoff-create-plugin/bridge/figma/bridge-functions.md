@@ -8,15 +8,14 @@ platform: figma
 
 ## Overview
 
-Bridge functions are **pure functions** that interact with the Figma API (`figma.*`). They are called from the message router (`loadUI.ts`) and perform specific Canvas operations.
+Bridge functions are **pure functions** that interact with the Figma API (`figma.*`). They are called from the message router (`loadUI.ts`) and perform specific Canvas operations. A new action needs three more coordinated edits beyond the function itself — see [core.md](../../core.md) for the full four-point contract.
 
 ## Principles
 
 1. **Single Responsibility**: Each bridge function does one thing
 2. **Pure Functions**: No side effects, predictable outputs
 3. **Type Safety**: Strong TypeScript typing
-4. **Error Handling**: Always handle and communicate errors
-5. **Async-Aware**: Properly handle async Figma operations (`figma.clientStorage` is always async)
+4. **Async-Aware**: Properly handle async Figma operations (`figma.clientStorage` is always async)
 
 ## File Organization
 
@@ -197,6 +196,8 @@ export const createColorStyle = (config: ColorStyleConfig): { id: string; name: 
 ```
 
 ## Integration with loadUI.ts
+
+The action map entry and the `figma.ui.postMessage` response are two of the four points in the message contract (see [core.md](../../core.md)):
 
 ```typescript
 import { createRectangle } from './nodes/createRectangle'

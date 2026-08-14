@@ -383,12 +383,7 @@ The UI then sends `LOAD_DATA` to the Canvas (triggered by the first platformMess
 
 ## Vite Build Configuration
 
-The plugin uses a dual build:
-
-- **Canvas** (`src/index.ts`): Built as IIFE (Immediately Invoked Function Expression) for the Figma sandbox
-- **UI** (`src/app/index.tsx`): Built as a single HTML file via `viteSingleFile()` for the iframe
-
-Both builds share `globalConfig` but run in completely separate JavaScript contexts.
+See [core.md](../core.md) for the dual-build stack fact (IIFE Canvas bundle + single-file UI HTML). One nuance specific to bootstrap ordering: both builds share `globalConfig` but run in completely separate JavaScript contexts — nothing at runtime bridges them except the message contract.
 
 ## Best Practices
 

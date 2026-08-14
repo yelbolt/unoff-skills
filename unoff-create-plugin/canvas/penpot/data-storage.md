@@ -17,7 +17,7 @@ Penpot **does not** have:
 - Shared plugin data (no `setSharedPluginData`)
 - A separate client storage API
 
-All persistent state goes through `penpot.localStorage`.
+All persistent state goes through `penpot.localStorage`. See [core.md](../../core.md) for why it must always be synchronous and string-only — the rule that trips up most ports.
 
 ---
 
@@ -183,12 +183,13 @@ penpot.localStorage.setItem('key', '')
 
 ---
 
-## Comparison with Figma Storage
+## Storage Gaps vs Figma
 
-| Feature                      | Figma                                   | Penpot                           |
-| ---------------------------- | --------------------------------------- | -------------------------------- |
-| User-level storage           | `figma.clientStorage` (async, typed)    | `penpot.localStorage` (sync, string) |
-| Node-level metadata          | `node.setPluginData(key, value)`        | Not available                    |
-| Cross-plugin shared data     | `node.setSharedPluginData(ns, k, v)`    | Not available                    |
-| Deleting a key               | `figma.clientStorage.deleteAsync(key)`  | `setItem(key, '')`               |
-| Storing objects              | Pass directly (serialized internally)   | Must `JSON.stringify` manually   |
+The user-level storage comparison (`figma.clientStorage` vs `penpot.localStorage`) is in [core.md](../../core.md). What core.md doesn't cover — Penpot has no per-node or cross-plugin equivalents at all:
+
+| Feature                   | Figma                                   | Penpot                          |
+| -------------------------- | ---------------------------------------- | -------------------------------- |
+| Node-level metadata       | `node.setPluginData(key, value)`        | Not available                   |
+| Cross-plugin shared data  | `node.setSharedPluginData(ns, k, v)`    | Not available                   |
+| Deleting a key            | `figma.clientStorage.deleteAsync(key)`  | `setItem(key, '')`              |
+| Storing objects           | Pass directly (serialized internally)   | Must `JSON.stringify` manually  |

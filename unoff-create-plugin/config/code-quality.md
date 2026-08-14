@@ -9,13 +9,6 @@ description: TypeScript strict mode, ESLint, Prettier, and Vitest setup for the 
 
 The plugin template does not currently include a test runner or test files. Code quality is enforced through **TypeScript strict mode**, **ESLint**, and **Prettier**. This document covers the existing quality toolchain and provides guidance for adding tests.
 
-## When to Use
-
-- Understanding the current quality enforcement tools
-- Setting up a test framework for the project
-- Writing tests for bridge functions, external services, or UI components
-- Integrating CI/CD quality gates
-
 ## Current Quality Toolchain
 
 ### Available Scripts

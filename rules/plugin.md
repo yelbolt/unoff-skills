@@ -5,25 +5,19 @@ project built on the unoff stack.
 
 ## Documentation
 
-Architecture, conventions and platform APIs live in the skill library:
+**[{{skillsPath}}/core.md]({{skillsPath}}/core.md)** — stack facts, architecture,
+the message contract, platform differences. Load it before writing code.
 
-**[{{skillsPath}}/SKILL.md]({{skillsPath}}/SKILL.md)** — the index. Load the file
-matching the layer you are working in before writing code.
-
-| Layer         | Load from `{{skillsPath}}/`                                                                                                      |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **Canvas**    | `canvas/{{platformSlug}}/canvas-api.md`, `canvas/{{platformSlug}}/data-storage.md`, `canvas/{{platformSlug}}/document-generation.md` |
-| **Bridge**    | `bridge/{{platformSlug}}/communication-pattern.md`, `bridge/{{platformSlug}}/bridge-functions.md`                                    |
-| **Config**    | `config/global-config.md`, `config/feature-flags.md`, `config/credits-system.md`, `config/vite-build.md`, `config/code-quality.md` |
-| **UI**        | `ui/component-library.md`, `ui/component-patterns.md`, `ui/state-management.md`, `ui/types-system.md`, `ui/i18n.md`, `ui/css-theming.md`, `ui/error-handling.md`, `ui/accessibility.md`, `ui/performance.md`, `ui/app-bootstrap.md`, `ui/external-services.md` |
-| **Externals** | `externals/implement-design.md`, `externals/payment-systems.md`                                                                   |
+**[{{skillsPath}}/SKILL.md]({{skillsPath}}/SKILL.md)** — the routing index. It
+maps each task to the one file that covers it. Load only what the task needs;
+do not preload a layer.
 
 Product behaviour — what this plugin does, as opposed to how it is built — lives
 in `{{specsDir}}/`. See `{{specsDir}}/INDEX.md`.
 
 ## Stack facts
 
-These are the most common source of broken implementations. Never contradict them.
+The most common source of broken implementations. Never contradict them.
 
 - **Preact**, not React — import from `preact` / `preact/compat`. The 3-level
   alias (Vite, TSConfig, npm) exists only for third-party libraries.
@@ -33,36 +27,21 @@ These are the most common source of broken implementations. Never contradict the
   the `WithConfig` and `WithTranslation` HOCs.
 - **Tolgee** for UI strings (`@tolgee/react`) and `createI18n()` for Canvas —
   two distinct systems, never mixed.
+- **`@unoff/ui` first** — look up the existing component before building one.
 - **Dual Vite build** — `IS_PLUGIN=true` emits the IIFE `plugin.js`; the default
   build emits a single HTML file.
-- **`@unoff/ui` first** — look up the existing component before building one.
 
 Which external services are enabled is declared in `src/global.config.ts` — read
 it rather than assuming.
 
 ## Architecture
 
-Two contexts that never mix:
+Two contexts that never mix, plus the bridge between them:
 
 1. **Canvas** (`src/index.ts`, `src/canvas/`, `src/bridges/`) — {{platform}} API
    access, no DOM, no authenticated network calls.
 2. **UI** (`src/app/`) — Preact application, no direct {{platform}} API access.
-3. **Bridge** — message passing between the two.
-
-```
-src/
-├── index.ts              # Canvas entry — action map
-├── global.config.ts      # Central config
-├── bridges/
-│   └── loadUI.ts         # Message router
-├── app/
-│   ├── index.tsx         # UI entry — providers, bootstrap
-│   ├── components/
-│   ├── stores/           # Nanostore atoms
-│   ├── services/         # External service singletons
-│   └── types/
-└── canvas/               # Canvas API helpers
-```
+3. **Bridge** — message passing between the two, routed in `src/bridges/loadUI.ts`.
 
 ### Communication
 

@@ -7,7 +7,7 @@ description: Central plugin configuration in global.config.ts covering limits, e
 
 ## Overview
 
-The plugin centralizes all configuration in a single `globalConfig` object defined in `/src/global.config.ts`. This object is typed as `Config` (from `/src/app/types/config.ts`) and provides the single source of truth for limits, environment flags, URLs, versions, feature flags, and more.
+See [core.md](../core.md) for the central-config rule. This file is the field-by-field reference for the `globalConfig` object, typed as `Config` (from `/src/app/types/config.ts`).
 
 `globalConfig` is consumed on both sides of the plugin:
 - **Canvas side**: Imported directly in `/src/index.ts` and bridge functions

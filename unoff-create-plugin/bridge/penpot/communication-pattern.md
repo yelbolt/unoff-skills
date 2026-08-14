@@ -12,62 +12,17 @@ Penpot plugins share the same **two-context architecture** as Figma:
 - **UI Context**: Runs in an iframe, has access to React, DOM, external APIs
 - **Canvas Context**: Has access to Penpot Plugin API (`penpot.*`)
 
-Key differences from Figma:
-- Canvas uses `penpot.ui.onMessage` / `penpot.ui.sendMessage` (not `figma.ui.onmessage` / `figma.ui.postMessage`)
-- The message object in Canvas is `msg.pluginMessage` (not `msg` directly)
-- The UI bootstrap uses a **dual-event proxy** (`platformMessage` / `pluginMessage`) instead of raw `window.addEventListener('message')`
-- `OPEN_IN_BROWSER` is not handled natively — it must be re-sent to the UI and handled there
-- There is no `resize()` equivalent: window size is fixed at `penpot.ui.open()` time
+See [core.md](../../core.md) for the full Figma/Penpot platform-differences table (message functions, storage, resize, theme). The two mechanics unique to Penpot's wiring — the `msg.pluginMessage` unwrap and the dual-event UI proxy — are detailed below, since core.md states only the rule, not the shape.
 
 ## Architecture Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        UI Context                           │
-│  (React App - iframe - /src/app/)                          │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐ │
-│  │  React Component                                      │ │
-│  │                                                        │ │
-│  │  dispatch a 'pluginMessage' CustomEvent               │ │
-│  │  → proxy in index.tsx calls parent.postMessage        │ │
-│  └──────────────────────────────────────────────────────┘ │
-│                          │                                  │
-│                          │ parent.postMessage (via proxy)   │
-│                          ▼                                  │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      Canvas Context                         │
-│  (Penpot Plugin API - /src/bridges/)                       │
-│                                                             │
-│  penpot.ui.onMessage(async (msg: any) => {               │
-│    const path = msg.pluginMessage   // ← unwrap here        │
-│    const actions = {                                        │
-│      CREATE_NODE: async () => {                            │
-│        const result = await createNode(path.data)          │
-│        penpot.ui.sendMessage({ type: 'NODE_CREATED', ... })│
-│      }                                                      │
-│    }                                                        │
-│    actions[path.type]?.()                                  │
-│  })                                                       │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           │ penpot.ui.sendMessage
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│                        UI Context                           │
-│                                                             │
-│  // Incoming messages are re-dispatched as 'platformMessage'│
-│  // by the proxy in src/app/index.tsx                      │
-│                                                             │
-│  window.addEventListener('platformMessage', (event) => {   │
-│    const msg = (event as CustomEvent).detail               │
-│    if (msg?.type === 'NODE_CREATED') { ... }               │
-│  })                                                         │
-└─────────────────────────────────────────────────────────────┘
+UI (iframe) → dispatch 'pluginMessage' CustomEvent → proxy → parent.postMessage
+Canvas: penpot.ui.onMessage((msg) => { path = msg.pluginMessage; actions[path.type]?.() })
+Canvas → penpot.ui.sendMessage → proxy re-dispatches as 'platformMessage' CustomEvent → UI
 ```
+
+See the numbered steps below for the actual code at each hop, and the proxy code right after.
 
 ## UI Bootstrap Proxy (src/app/index.tsx)
 
@@ -194,10 +149,7 @@ If you need to support different sizes, expose them in `globalConfig.limits` and
 
 ## Message Type Conventions
 
-| Direction    | Pattern          | Example              |
-| ------------ | ---------------- | -------------------- |
-| UI → Canvas  | `VERB_NOUN`      | `CREATE_RECTANGLE`   |
-| Canvas → UI  | `NOUN_VERB_PAST` | `RECTANGLE_CREATED`  |
+Naming follows [core.md](../../core.md): `CREATE_RECTANGLE` (UI → Canvas) / `RECTANGLE_CREATED` (Canvas → UI).
 
 ## Message Structure
 

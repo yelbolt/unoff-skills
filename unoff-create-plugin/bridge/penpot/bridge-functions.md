@@ -8,13 +8,7 @@ platform: penpot
 
 ## Overview
 
-Bridge functions are **pure functions** that interact with the Penpot API (`penpot.*`). They are called from the message router (`loadUI.ts`).
-
-Key differences from Figma:
-- Storage uses `penpot.localStorage` (synchronous, **string-only** — serialize objects manually)
-- User info is `penpot.currentUser.id`, `.name`, `.avatarUrl` (not `.photoUrl`)
-- Canvas API is `penpot.*` (shapes, components, pages, etc.)
-- No async `clientStorage` — all reads/writes are synchronous
+Bridge functions are **pure functions** that interact with the Penpot API (`penpot.*`). They are called from the message router (`loadUI.ts`). A new action needs three more coordinated edits beyond the function itself — see [core.md](../../core.md) for the full four-point contract and the Figma/Penpot platform-differences table (storage, current user, resize, etc.).
 
 ## File Organization
 

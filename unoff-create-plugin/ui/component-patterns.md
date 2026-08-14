@@ -7,11 +7,9 @@ description: PureComponent class pattern with WithConfig and WithTranslation HOC
 
 ## Overview
 
-The plugin uses **Preact** with **class components** as the primary pattern. Components extend `PureComponent` or `Component` from `preact/compat` and receive shared data through Higher-Order Components (HOCs).
+See [core.md](../core.md) for the Preact/PureComponent stack facts. This file covers the concrete implementation: class component structure, the `WithConfig`/`WithTranslation` HOCs, `BaseProps`, and `platformMessage` handling.
 
-> **Import rule**: Always import from `preact/compat` (or `preact` for type-only imports). Never write `import React from 'react'` in plugin source files. The React → Preact aliasing is still in place at the build level for third-party libraries (e.g. `@tolgee/react`), but application code must import from Preact directly.
-
-> **Component rule**: This project does NOT use functional components with hooks as the primary pattern. Class components with HOCs are the standard.
+> **Nuance core.md doesn't cover**: the React → Preact build-level alias exists only for third-party libraries (e.g. `@tolgee/react`). Application code must still import from `preact/compat` (or `preact` for type-only imports) directly — never `import React from 'react'`.
 
 ## Class Component Pattern
 

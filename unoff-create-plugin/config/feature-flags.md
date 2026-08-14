@@ -290,19 +290,10 @@ class App extends Component<AppProps, AppState> {
       featureName: 'MY_SERVICE',
       planStatus, currentService: service, currentEditor: editor,
     }),
+    // ...one entry per feature name checked in this component, same shape
     USER_CONSENT: new FeatureStatus({
       features: config.features,
       featureName: 'USER_CONSENT',
-      planStatus, currentService: service, currentEditor: editor,
-    }),
-    SHORTCUTS: new FeatureStatus({
-      features: config.features,
-      featureName: 'SHORTCUTS',
-      planStatus, currentService: service, currentEditor: editor,
-    }),
-    USER_LANGUAGE_SUGGESTION: new FeatureStatus({
-      features: config.features,
-      featureName: 'USER_LANGUAGE_SUGGESTION',
       planStatus, currentService: service, currentEditor: editor,
     }),
   })
