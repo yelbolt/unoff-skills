@@ -62,20 +62,36 @@ Never contradict these. Full detail in `unoff-create-plugin/core.md`.
    Types come first: `ui/types-system.md` union members are the shared vocabulary
    every other layer compiles against.
 
-4. **Delegate against that contract.** Because the contract is already fixed, the
-   specialists do not need to negotiate with each other — so run them
-   **concurrently** wherever the files are disjoint:
+4. **Delegate against that contract — to as few specialists as the change needs.**
 
-   - `unoff-canvas-bridge` (`src/index.ts`, `src/canvas/`, `src/bridges/`)
-   - `unoff-ui` (`src/app/`)
-   - `unoff-platform-services` (`global.config.ts`, `vite.config.ts`, `src/app/services/`)
+   **Spawn only the layers the change actually touches.** Each specialist is a
+   cold start that re-reads its own context, so an unnecessary one costs as much
+   as a real one and returns nothing. Most changes touch one or two layers. A
+   theme tweak is `unoff-ui` alone. A storage fix is `unoff-canvas-bridge` alone.
+   Fanning out to all three by default is the most expensive mistake available
+   to you, and the parallelism below is not a reason to do it.
 
-   Give each one the full contract, the file paths it owns, and the paths it must
-   not touch. Serialize only on a real dependency — e.g. a credit gate whose
-   `FeatureStatus` shape the UI consumes must land before the UI reads it.
+   | Change touches                                    | Spawn                       |
+   | ------------------------------------------------- | --------------------------- |
+   | `src/app/` only                                    | `unoff-ui`                  |
+   | `src/index.ts`, `src/canvas/`, `src/bridges/` only | `unoff-canvas-bridge`       |
+   | `global.config.ts`, `vite.config.ts`, services     | `unoff-platform-services`   |
+   | a new end-to-end action                            | canvas-bridge + ui          |
 
-5. **Gate** — delegate to `unoff-conformance-reviewer`, telling it which layers
-   the diff actually touches so it can skip irrelevant checklist sections.
+   Do the work yourself, without spawning, when it is a one-line fix, a question
+   answerable by reading, or a change confined to a single file you have already
+   read. Delegation earns its cost on multi-file work in a layer you would
+   otherwise have to load context for.
+
+   Where you do spawn two or more, the contract is already fixed, so they need
+   not negotiate with each other — **run them concurrently**. Give each the full
+   contract, the paths it owns, and the paths it must not touch. Serialize only
+   on a real dependency — e.g. a credit gate whose `FeatureStatus` shape the UI
+   consumes must land before the UI reads it.
+
+5. **Gate** — where the change warrants review (see Delegation rules), delegate
+   to `unoff-conformance-reviewer`, telling it which layers the diff actually
+   touches so it can skip irrelevant checklist sections.
 6. **Assemble** — return a short summary: what changed per layer, what the
    reviewer flagged, what is left.
 
@@ -87,15 +103,20 @@ Never contradict these. Full detail in `unoff-create-plugin/core.md`.
   performance, types.
 - `unoff-platform-services` — global config, feature flags, credits, Vite build,
   Supabase, Sentry, Mixpanel, Tolgee setup, payments, design implementation.
-- `unoff-conformance-reviewer` — always, at the end, and any time the user asks
-  "is this correct".
+- `unoff-conformance-reviewer` — at the end of multi-layer work, anything
+  touching the message contract or platform parity, and any time the user asks
+  "is this correct". Skip it for a one-line fix or a change you fully verified
+  yourself: a review spawn that can only confirm what you already know is cost
+  without information.
 
 Keep at your level: platform resolution, layer decomposition, the message
 contract, ordering, final summary.
 
 ## Constraints
 
-- Do not write bulk implementation code yourself — delegate it.
+- Do not write bulk implementation code yourself — delegate multi-file work in a
+  layer. Small, contained edits you have already read are yours to make; spawning
+  a specialist for them costs more than it returns.
 - Do not invent APIs. If a Canvas or Bridge capability is uncertain, have the
   specialist read the skill file first.
 - Never let a feature ship with only one platform wired unless the user

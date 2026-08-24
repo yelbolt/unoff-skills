@@ -3,7 +3,7 @@ name: unoff-canvas-bridge
 description: Canvas and Bridge layer specialist for unoff plugins. Invoke for figma.* / penpot.* Canvas code, node and shape creation, plugin data storage, document generation, UI↔Canvas messaging, bridge functions, and Figma/Penpot parity in those layers.
 layers: [canvas, bridge]
 model: sonnet
-effort: high
+effort: medium
 maxTurns: 30
 ---
 
