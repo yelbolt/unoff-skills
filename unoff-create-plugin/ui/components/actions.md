@@ -14,8 +14,8 @@ Part of the [component-library](../component-library.md) reference. Import all f
   type="primary" | "secondary" | "tertiary"
   label="Click me"
   feature="FEATURE_NAME"
-  isBlocked={features.MY_FEATURE.isBlocked()}
-  isNew={features.MY_FEATURE.isNew()}
+  isBlocked={this.features.MY_FEATURE.isBlocked()}
+  isNew={this.features.MY_FEATURE.isNew()}
   isDisabled={false}
   isLoading={false}
   warning={{
@@ -61,9 +61,9 @@ Part of the [component-library](../component-library.md) reference. Import all f
       value: "export",
       feature: "EXPORT",
       type: "OPTION",
-      isActive: features.EXPORT.isActive(),
-      isBlocked: features.EXPORT.isReached(count),
-      isNew: features.EXPORT.isNew(),
+      isActive: this.features.EXPORT.isActive(),
+      isBlocked: this.features.EXPORT.isReached(count),
+      isNew: this.features.EXPORT.isNew(),
       action: (e) => this.handleExport()
     },
     {
@@ -71,7 +71,7 @@ Part of the [component-library](../component-library.md) reference. Import all f
       value: "import",
       feature: "IMPORT",
       type: "OPTION",
-      isActive: features.IMPORT.isActive(),
+      isActive: this.features.IMPORT.isActive(),
       action: (e) => this.handleImport()
     }
   ]}
@@ -88,8 +88,8 @@ Part of the [component-library](../component-library.md) reference. Import all f
     pin: "BOTTOM",
     type: "MULTI_LINE" | "SINGLE_LINE"
   }}
-  isBlocked={features.FEATURE.isBlocked()}
-  isNew={features.FEATURE.isNew()}
+  isBlocked={this.features.FEATURE.isBlocked()}
+  isNew={this.features.FEATURE.isNew()}
   canBeSearched={true}
   searchLabel="Search…"
   noResultsLabel="No results"
@@ -263,8 +263,8 @@ Icon-based tab switcher. Each segment shows an icon (or a letter) with a tooltip
     pin: "BOTTOM",
     type: "MULTI_LINE" | "SINGLE_LINE"
   }}
-  isBlocked={features.FEATURE.isBlocked()}
-  isNew={features.FEATURE.isNew()}
+  isBlocked={this.features.FEATURE.isBlocked()}
+  isNew={this.features.FEATURE.isNew()}
   action={(e) => {
     const id = (e.currentTarget as HTMLElement).dataset.feature
     this.setState({ view: id })

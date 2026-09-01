@@ -191,7 +191,7 @@ The i18n system directly supports accessibility by:
 ```tsx
 <Feature
   isActive={
-    App.features(...).USER_LANGUAGE_SUGGESTION.isActive() &&
+    this.features.USER_LANGUAGE_SUGGESTION.isActive() &&
     this.state.isSuggestedLanguageDisplayed &&
     this.state.suggestedLanguage !== null
   }

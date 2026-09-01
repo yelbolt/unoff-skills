@@ -298,16 +298,23 @@ class App extends Component<AppProps, AppState> {
     }),
   })
 
+  // Private getter — single access point, declared right after `static features`
+  // and before the constructor. Never call `App.features(...)` a second time
+  // in the same component; always go through `this.features`.
+  private get features() {
+    return App.features(
+      this.state.planStatus,
+      this.props.config,
+      this.state.service,
+      this.state.editor
+    )
+  }
+
   render() {
     return (
       <Feature
         isActive={
-          App.features(
-            this.state.planStatus,
-            this.props.config,
-            this.state.service,
-            this.state.editor
-          ).MY_SERVICE.isActive() && this.state.service === 'MY_SERVICE'
+          this.features.MY_SERVICE.isActive() && this.state.service === 'MY_SERVICE'
         }
       >
         <MyService {...this.props} {...this.state} />
@@ -316,6 +323,36 @@ class App extends Component<AppProps, AppState> {
   }
 }
 ```
+
+### Always Go Through the `features` Getter
+
+Every component with a `static features` method must also declare a `private get features()` getter, placed right after `static features` and right before `constructor`. Every call site in the component uses `this.features.X` — never `ComponentName.features(planStatus, config, service, editor).X` repeated inline.
+
+```typescript
+// ✅ Single source of truth for the call args, called as `this.features`
+private get features() {
+  return MyComponent.features(
+    this.props.planStatus,
+    this.props.config,
+    this.props.service,
+    this.props.editor
+  )
+}
+
+<Feature isActive={this.features.MY_FEATURE.isActive()}>
+
+// ❌ Repeating the full static call at every usage site
+<Feature
+  isActive={MyComponent.features(
+    this.props.planStatus,
+    this.props.config,
+    this.props.service,
+    this.props.editor
+  ).MY_FEATURE.isActive()}
+>
+```
+
+Why: a component often checks the same feature (or several features) in more than one place — `isActive`, `isBlocked`, `isNew` on the same entry, or the same entry reused in a `Menu` option and in `render()`. Repeating the 4-argument static call at each site is verbose and, more importantly, means a future signature change (e.g. adding a 5th parameter) requires touching every call site instead of one getter. If a component's static features arguments come from `this.state` instead of `this.props` (as in `App.tsx`), the getter is the only place that needs to know that.
 
 ## setContexts() — Tab/Context Filtering
 
@@ -425,15 +462,15 @@ Editor type is detected at runtime via `checkEditor()` bridge function and store
    })
    ```
 
-4. **Use in render**:
+4. **Use via the `this.features` getter** (no other changes needed to the getter itself — it already forwards every entry):
    ```typescript
-   <Feature isActive={features.MY_NEW_FEATURE.isActive()}>
+   <Feature isActive={this.features.MY_NEW_FEATURE.isActive()}>
      <MyNewFeatureComponent />
    </Feature>
 
    <Button
-     isBlocked={features.MY_NEW_FEATURE.isBlocked()}
-     isNew={features.MY_NEW_FEATURE.isNew()}
+     isBlocked={this.features.MY_NEW_FEATURE.isBlocked()}
+     isNew={this.features.MY_NEW_FEATURE.isNew()}
      onUnblock={() => sendPluginMessage({ pluginMessage: { type: 'GET_PRO' } }, '*')}
    />
    ```
@@ -445,17 +482,31 @@ Editor type is detected at runtime via `checkEditor()` bridge function and store
 
 ## Best Practices
 
-### 1. Use Static Features Pattern
+### 1. Use Static Features Pattern + the `features` Getter
 
 ```typescript
-// ✅ Static method with runtime parameters
+// ✅ Static method with runtime parameters, exposed via a private getter
 static features = (planStatus, config, service, editor) => ({
   MY_FEATURE: new FeatureStatus({ ... }),
 })
 
+private get features() {
+  return MyComponent.features(
+    this.props.planStatus,
+    this.props.config,
+    this.props.service,
+    this.props.editor
+  )
+}
+
 // ❌ Creating FeatureStatus in render directly
 render() {
   const status = new FeatureStatus({ ... }) // Creates new object every render
+}
+
+// ❌ Repeating the static call inline at every usage site instead of `this.features`
+render() {
+  return <Feature isActive={MyComponent.features(this.props.planStatus, this.props.config, this.props.service, this.props.editor).MY_FEATURE.isActive()} />
 }
 ```
 
@@ -463,12 +514,12 @@ render() {
 
 ```typescript
 // ✅ Feature wrapper prevents rendering
-<Feature isActive={features.MY_FEATURE.isActive()}>
+<Feature isActive={this.features.MY_FEATURE.isActive()}>
   <ExpensiveComponent />
 </Feature>
 
 // ❌ Rendering then hiding with CSS
-<div style={{ display: features.MY_FEATURE.isActive() ? 'block' : 'none' }}>
+<div style={{ display: this.features.MY_FEATURE.isActive() ? 'block' : 'none' }}>
   <ExpensiveComponent />
 </div>
 ```
@@ -478,7 +529,7 @@ render() {
 ```typescript
 // ✅ Provide upgrade path for blocked features
 <Button
-  isBlocked={features.MY_FEATURE.isBlocked()}
+  isBlocked={this.features.MY_FEATURE.isBlocked()}
   onUnblock={() => {
     sendPluginMessage({ pluginMessage: { type: 'GET_PRO' } }, '*')
   }}

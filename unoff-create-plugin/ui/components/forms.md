@@ -23,8 +23,8 @@ Part of the [component-library](../component-library.md) reference. Import all f
     label: "Helper text explaining the input",
     pin: "TOP" | "BOTTOM"
   }}
-  isBlocked={features.FEATURE.isBlocked()}
-  isNew={features.FEATURE.isNew()}
+  isBlocked={this.features.FEATURE.isBlocked()}
+  isNew={this.features.FEATURE.isNew()}
   feature="FEATURE_NAME"
   onBlur={(e) => {
     // Handle blur
@@ -61,8 +61,8 @@ Part of the [component-library](../component-library.md) reference. Import all f
       value: "option1",
       type: "OPTION",
       isActive: this.state.selected === "option1",
-      isBlocked: features.OPTION1.isReached(count),
-      isNew: features.OPTION1.isNew(),
+      isBlocked: this.features.OPTION1.isReached(count),
+      isNew: this.features.OPTION1.isNew(),
       action: (e) => this.handleSelect("option1")
     },
     {
@@ -99,8 +99,8 @@ Part of the [component-library](../component-library.md) reference. Import all f
     icon: "adjust"
   }}
   isDisabled={false}
-  isBlocked={features.FEATURE.isBlocked()}
-  isNew={features.FEATURE.isNew()}
+  isBlocked={this.features.FEATURE.isBlocked()}
+  isNew={this.features.FEATURE.isNew()}
   canBeSearched={true}
   searchLabel="Search…"
   noResultsLabel="No results"
@@ -256,6 +256,16 @@ export default class ExportPanel extends React.Component<Props, State> {
       currentEditor: editor,
     }),
   })
+
+  // Declared right after `static features`, right before `constructor`.
+  private get features() {
+    return ExportPanel.features(
+      this.props.planStatus,
+      this.props.config,
+      this.props.service,
+      this.props.editor
+    )
+  }
   
   handleExport = () => {
     this.setState({ isLoading: true })
@@ -272,13 +282,6 @@ export default class ExportPanel extends React.Component<Props, State> {
   }
   
   render() {
-    const features = ExportPanel.features(
-      this.props.planStatus,
-      this.props.config,
-      this.props.service,
-      this.props.editor
-    )
-    
     return (
       <div>
         <Bar
@@ -315,7 +318,7 @@ export default class ExportPanel extends React.Component<Props, State> {
                 value: 'PNG',
                 type: 'OPTION',
                 isActive: this.state.exportFormat === 'PNG',
-                isBlocked: features.EXPORT_PNG.isBlocked(),
+                isBlocked: this.features.EXPORT_PNG.isBlocked(),
                 action: () => this.setState({ exportFormat: 'PNG' })
               },
               {
@@ -323,8 +326,8 @@ export default class ExportPanel extends React.Component<Props, State> {
                 value: 'SVG',
                 type: 'OPTION',
                 isActive: this.state.exportFormat === 'SVG',
-                isBlocked: features.EXPORT_SVG.isBlocked(),
-                isNew: features.EXPORT_SVG.isNew(),
+                isBlocked: this.features.EXPORT_SVG.isBlocked(),
+                isNew: this.features.EXPORT_SVG.isNew(),
                 action: () => this.setState({ exportFormat: 'SVG' })
               }
             ]}
@@ -336,7 +339,7 @@ export default class ExportPanel extends React.Component<Props, State> {
             type="primary"
             label={this.props.t('export.button')}
             feature="EXPORT"
-            isBlocked={features.BATCH_EXPORT.isBlocked()}
+            isBlocked={this.features.BATCH_EXPORT.isBlocked()}
             isLoading={this.state.isLoading}
             isDisabled={!this.state.name}
             action={this.handleExport}

@@ -194,22 +194,26 @@ class MyComponent extends PureComponent<MyProps, MyState> {
     }),
   })
 
-  render() {
-    const creditsCount = useStore($creditsCount)
-    const features = MyComponent.features(
+  // Declared right after `static features`, right before `constructor`.
+  private get features() {
+    return MyComponent.features(
       this.state.planStatus,
       this.props.config,
       this.state.service,
       this.state.editor
     )
+  }
+
+  render() {
+    const creditsCount = useStore($creditsCount)
 
     const isCreditsExhausted =
       this.props.config.plan.isCreditsEnabled &&
-      features.MY_FEATURE.isReached(creditsCount)
+      this.features.MY_FEATURE.isReached(creditsCount)
 
     return (
       <Button
-        isBlocked={features.MY_FEATURE.isBlocked() || isCreditsExhausted}
+        isBlocked={this.features.MY_FEATURE.isBlocked() || isCreditsExhausted}
         onUnblock={() => {
           // Show upsell or credits explanation
         }}

@@ -39,7 +39,7 @@ Part of the [component-library](../component-library.md) reference. Import all f
 ### Feature Wrapper
 
 ```typescript
-<Feature isActive={features.PRO_FEATURE.isActive()}>
+<Feature isActive={this.features.PRO_FEATURE.isActive()}>
   <Button label="Pro Feature" />
   <Input placeholder="Pro input" />
 </Feature>

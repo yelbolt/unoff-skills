@@ -234,16 +234,21 @@ class App extends Component<AppProps, AppState> {
     // ...more features
   })
 
+  // Declared right after `static features`, right before `constructor`.
+  private get features() {
+    return App.features(
+      this.state.planStatus,
+      this.props.config,
+      this.state.service,
+      this.state.editor
+    )
+  }
+
   render() {
     return (
       <Feature
         isActive={
-          App.features(
-            this.state.planStatus,
-            this.props.config,
-            this.state.service,
-            this.state.editor
-          ).MY_SERVICE.isActive() && this.state.service === 'MY_SERVICE'
+          this.features.MY_SERVICE.isActive() && this.state.service === 'MY_SERVICE'
         }
       >
         <MyService {...this.props} {...this.state} />
@@ -258,6 +263,10 @@ class App extends Component<AppProps, AppState> {
 - Called without a component instance
 - Can be invoked from render without creating `this` binding issues
 - Accepts current runtime values as parameters (not stale closures)
+
+### Always Read It Through `this.features`
+
+Never call `ComponentName.features(planStatus, config, service, editor)` directly at a JSX usage site — always add the `private get features()` getter shown above and read `this.features.FEATURE_NAME` instead. One component often checks the same or several feature names in more than one place (`isActive`/`isBlocked`/`isNew` on the same entry, or the same entry in a `Menu` option and in `render()`); repeating the 4-argument call at each site is what the getter exists to eliminate. It also means a call site never needs to know whether the args come from `this.props` or `this.state` (see `App.tsx` above, which reads from state) — that detail lives in exactly one place.
 
 ## Preact Event Handling — `e.currentTarget` Not `e.target`
 
@@ -517,7 +526,7 @@ export default WithTranslation(WithConfig(MyComponent))
 
 ```typescript
 // ✅ Feature component + FeatureStatus
-<Feature isActive={features.MY_FEATURE.isActive()}>
+<Feature isActive={this.features.MY_FEATURE.isActive()}>
   <ExpensiveComponent />
 </Feature>
 

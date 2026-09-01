@@ -324,9 +324,20 @@ Feature status checks are declared as a static method, computed at call sites ra
 static features = (planStatus, config, service, editor) => ({
   MY_FEATURE: new FeatureStatus({ ... }),
 })
+
+// Single access point, declared right before the constructor.
+// JSX reads `this.features.X` — never calls the static method inline.
+private get features() {
+  return MyComponent.features(
+    this.props.planStatus,
+    this.props.config,
+    this.props.service,
+    this.props.editor
+  )
+}
 ```
 
-Called only in JSX where needed — not recomputed on every render of the full component.
+Called only in JSX where needed, through `this.features` — not recomputed on every render of the full component, and not duplicated across every usage site in the component.
 
 ### Loading State
 
@@ -394,7 +405,7 @@ This ensures only one mousemove handler is active at a time and is automatically
 ## What to Avoid
 
 ❌ Don't extend `Component` unless you need to bypass PureComponent's shallow comparison  
-❌ Don't compute feature status in `render()` — use the static features pattern  
+❌ Don't compute feature status in `render()` — use the static features pattern + `this.features` getter  
 ❌ Don't add event listeners without removing them on unmount  
 ❌ Don't use `display: none` to hide content — use `Feature` to remove from DOM  
 ❌ Don't init services without checking their config flag first  

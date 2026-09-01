@@ -107,17 +107,22 @@ class MyComponent extends PureComponent {
     }),
   })
 
-  render() {
-    const features = MyComponent.features(
+  // Private getter — declared right after `static features`, right before
+  // `constructor`. Every call site reads `this.features.X`; never call
+  // `MyComponent.features(...)` again elsewhere in the component.
+  private get features() {
+    return MyComponent.features(
       this.props.planStatus,
       this.props.config,
       this.props.service,
       this.props.editor
     )
+  }
 
+  render() {
     return (
       <div>
-        {features.EXPORT_PNG.isActive() && <Button label="Export" />}
+        {this.features.EXPORT_PNG.isActive() && <Button label="Export" />}
       </div>
     )
   }
@@ -204,9 +209,9 @@ Before using any `unoff-ui` component, check the actual `.d.ts` type definitions
 ## Best Practices
 
 ```typescript
-// ✅ Use FeatureStatus for feature checks — never manually check plan status
-const features = MyComponent.features(planStatus, config, service, editor)
-<Button isBlocked={features.MY_FEATURE.isBlocked()} />
+// ✅ Use FeatureStatus for feature checks — never manually check plan status.
+// Read it through the `this.features` getter, not a repeated static call.
+<Button isBlocked={this.features.MY_FEATURE.isBlocked()} />
 
 // ✅ Include the `feature` prop for tracking/analytics
 <Button feature="EXPORT_PNG" label="Export" />
